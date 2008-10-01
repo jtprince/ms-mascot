@@ -79,6 +79,7 @@ task :default => :test
 
 desc 'Run tests.'
 Rake::TestTask.new(:test) do |t|
+  t.libs = Tap::Exe.instance.collect {|env| env.load_paths }.flatten
   t.test_files = Dir.glob( File.join('test', ENV['pattern'] || '**/*_test.rb') )
   t.verbose = true
   t.warning = true

@@ -22,15 +22,15 @@ module Ms
         #mask_locations :z, residue_locations['P']
       end
     
-      def mass(molecule)
-        round(round(super, 7), 6)
-      end
-    
       def proton_mass
-        molecule_mass('H') - round(round(Particle['Electron'].mass, 7), 6)
+        mass(HYDROGEN) - round(round(ELECTRON.mass, 7), precision)
       end
-    
+      
       protected
+      
+      def mass(molecule)
+        round(round(super, 7), precision)
+      end
     
       def handle_unknown_series(s)
         case s
