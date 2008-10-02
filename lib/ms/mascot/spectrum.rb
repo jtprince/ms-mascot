@@ -1,19 +1,15 @@
-require 'ms/in_silico/fragment_spectrum'
+require 'ms/in_silico/spectrum'
 
 module Ms
   module Mascot
-    class FragmentSpectrum < InSilico::FragmentSpectrum
+    class Spectrum < InSilico::Spectrum
       include Molecules::Utils
       
       locate_residues "P"
     
-      attr_reader :precision
-    
-      def initialize(sequence, nterm=HYDROGEN, cterm=HYDROXIDE, precision=6, &block)
-        @precision = precision
-      
-        super(sequence, nterm, cterm, &block)
-      
+      def initialize(*args)
+        super
+        
         [:a, :b, :c, :cladder].each {|key| mask_locations key, [-1] }
         [:x, :y, :Y, :z, :nladder].each {|key| mask_locations key, [0] }
       
@@ -21,16 +17,8 @@ module Ms
         #mask_locations :c, residue_locations['P'].collect {|i| i-1}
         #mask_locations :z, residue_locations['P']
       end
-    
-      def proton_mass
-        mass(HYDROGEN) - round(round(ELECTRON.mass, 7), precision)
-      end
       
       protected
-      
-      def mass(molecule)
-        round(round(super, 7), precision)
-      end
     
       def handle_unknown_series(s)
         case s

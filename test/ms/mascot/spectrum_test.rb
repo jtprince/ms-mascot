@@ -1,5 +1,5 @@
 require File.join(File.dirname(__FILE__), '../../tap_test_helper.rb') 
-require 'ms/mascot/fragment_spectrum'
+require 'ms/mascot/spectrum'
 require 'ms/mascot'
 
 #
@@ -9,7 +9,7 @@ require 'ms/mascot'
 # an expected series.
 #
 
-class Ms::Mascot::FragmentSpectrumTest < Test::Unit::TestCase
+class Ms::Mascot::SpectrumTest < Test::Unit::TestCase
   include Ms::Mascot
 
   def assert_series_equal(series, expected, frag, delta_mass)
@@ -67,7 +67,7 @@ class Ms::Mascot::FragmentSpectrumTest < Test::Unit::TestCase
 7 	659.28 	330.14 	642.25 	321.63 	641.27 	321.14 	N 	289.16 	145.08 	272.14 	136.57 	  	  	2
 8 	  	  	  	  	  	  	R 	175.12 	88.06 	158.09 	79.55 	  	  	1}
 
-    frag = FragmentSpectrum.new("APGFGDNR")
+    frag = Spectrum.new("APGFGDNR")
     identifiers.each do |identifier|
       assert_series_equal(identifier, series, frag, FRAGMENT_TEST_MASS_UNCERTAINTY)
     end
@@ -89,7 +89,7 @@ class Ms::Mascot::FragmentSpectrumTest < Test::Unit::TestCase
 6 	102.05 	705.38 	687.37 	733.38 	715.37 	750.40 	E 	302.13 	276.16 	258.14 	259.13 	260.14 	261.14 	2
 7 	101.11 	  	  	  	  	  	K 	173.09 	147.11 	  	130.09 	131.09 	132.10 	1}
 
-    frag = FragmentSpectrum.new("IVYVEEK")
+    frag = Spectrum.new("IVYVEEK")
     identifiers2.each do |identifier|
       assert_series_equal(identifier, series, frag, FRAGMENT_TEST_MASS_UNCERTAINTY)
     end
@@ -137,7 +137,7 @@ class Ms::Mascot::FragmentSpectrumTest < Test::Unit::TestCase
 36 	86.10 	3738.69 	3721.66 	3720.68 	3766.68 	3749.66 	3748.67 	3783.71 	3710.66 	3724.67 	I 	286.18 	260.20 	  	243.17 	244.18 	245.19 	2
 37 	101.11 	  	  	  	  	  	  	  	  	  	K 	173.09 	147.11 	  	130.09 	131.09 	132.10 	1}
 
-    frag = FragmentSpectrum.new("RPDLPSGFDGWQVVDATPQETSSGIFCCGPCSVESIK")
+    frag = Spectrum.new("RPDLPSGFDGWQVVDATPQETSSGIFCCGPCSVESIK")
     identifiers2.each do |identifier|
       assert_series_equal(identifier, series, frag, FRAGMENT_TEST_MASS_UNCERTAINTY)
     end
