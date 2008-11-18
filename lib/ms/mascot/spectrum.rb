@@ -2,17 +2,25 @@ require 'ms/in_silico/spectrum'
 
 module Ms
   module Mascot
+    
+    # Generates a Mascot-style theoretical spectrum.  When the masses are
+    # set correctly, the theoretical spectrum will have zero error and
+    # full coverage (for whatever series are generated) when identified
+    # using Mascot.
+    #
     class Spectrum < InSilico::Spectrum
       Element = Constants::Libraries::Element
       
       # A map of the default [monoisotopic, average] masses for a variety
-      # of constants used by Mascot.  Taken from the configuration pages
-      # on the Hansen Lab server:
+      # of constants used by Mascot.  
+      #--
+      # Taken from the configuration pages on the Hansen Lab server:
       #
       # - http://hsc-mascot.uchsc.edu/mascot/x-cgi/ms-config.exe?u=1222975681&ELEMENTS_SHOW=1
       # - http://hsc-mascot.uchsc.edu/mascot/x-cgi/ms-config.exe?u=1222975681&AMINOACIDS_SHOW=1
       #
-      MASS_MAP = {
+      DEFAULT_MASS_MAP = {}
+      DEFAULT_MASS_MAP.merge!(
         Residue::A => [71.037114, 71.0779],
         Residue::R => [156.101111, 156.1857],
         Residue::N => [114.042927, 114.1026],
@@ -66,20 +74,37 @@ module Ms
         HYDROGEN => [1.007825, 1.0079],
         HYDROXIDE => [17.002740, 17.0073],
         ELECTRON => [0.000549, 0.000549]
-      }
+      )
       
+      # Mark prolines to be located by the spectrum,
+      # so they may be masked later.
       locate_residues "P"
       
+      # A hash of masses to use in place of the Element/Molecule
+      # masses normally used in calculating a spectrum.  By
+      # default mass map contains the monoisotopic masses
+      # specified in DEFAULT_MASS_MAP.
+      #
+      # Note: to generate a zero-error spectrum for Mascot, it
+      # is important that mass_map contains the exact masses
+      # used by the server.  If your server uses non-default
+      # masses, override the values in DEFAULT_MASS_MAP to 
+      # affect all instances, or just mass_map to affect a
+      # single instance. See:
+      #
+      #  http://your.mascot.server/x-cgi/ms-config.exe
+      #
+      # To check the mass values for your server.
       attr_reader :mass_map
       
       def initialize(sequence, nterm=HYDROGEN, cterm=HYDROXIDE)
         @mass_map = {}
-        MASS_MAP.each_pair do |const, (mono, avg)|
-          mass_map[const] = mono  
+        DEFAULT_MASS_MAP.each_pair do |const, (mono, avg)|
+          @mass_map[const] = mono  
         end
         
         super do |element|
-          mass_map[element]
+          @mass_map[element]
         end
 
         [:a, :b, :c, :cladder].each {|key| mask_locations key, [-1] }
@@ -92,11 +117,19 @@ module Ms
       
       protected
       
-      def mass(molecule)
-        mass = mass_map[molecule]
-        mass ? mass : super
+      # looks up a mapped mass from mass_map or reverts to super
+      def mass(molecule) # :nodoc:
+        @mass_map[molecule] || super
       end
     
+      # handle_unknown_series maps several Mascot-specific
+      # series annotations to their standard counterparts:
+      #
+      #   series+n   series + Hn
+      #   series*    series - NH3
+      #   series0    series - H2O
+      #   Immon.     immonium
+      #
       def handle_unknown_series(s)
         case s
         when /^([\w\+\-]+)+(\d+)$/
