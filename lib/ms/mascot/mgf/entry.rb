@@ -4,7 +4,7 @@ module Ms
   module Mascot
     module Mgf
 
-      # Entry represents a mascot generic file (mgf) formatted entry. 
+      # Represents a mascot generic file (mgf) formatted entry. 
       #
       #   BEGIN IONS
       #   TITLE=7100401blank.190.190.2.dta
@@ -20,8 +20,9 @@ module Ms
       class Entry
         class << self
 
-          # Parses the entry string into an Mgf::Entry.  The entry must be complete, ie
-          # begin with a 'BEGIN IONS' line and end with an 'END IONS' line.
+          # Parses the entry string into an Mgf::Entry.  The entry must be
+          # complete and properly formatted, ie it must begin with a 
+          # 'BEGIN IONS' line and end with an 'END IONS' line.
           def parse(str)
             entry = Entry.new
 
@@ -47,13 +48,20 @@ module Ms
           end
         end
 
-        # mgf headers, not including CHARGE and PEPMASS
+        # A hash of mgf headers, not including CHARGE and PEPMASS
         attr_reader :headers
-
+        
+        # The charge of the entry
         attr_accessor :charge
+        
+        # The peptide mass of the entry
         attr_accessor :pepmass
+        
+        # The data (mz/intensity) for the entry
         attr_accessor :data
-
+        
+        # Initialized a new Entry using the headers and data.  Set charge
+        # and pepmass using the CHARGE and PEPMASS headers.
         def initialize(headers={}, data=[])
           @headers = {}
           @pepmass = nil
@@ -65,22 +73,21 @@ module Ms
           end
         end
 
-        # Retrieve a header using an mgf header string.  CHARGE and PEPMASS as
-        # formatted strings can  be retrieved as strings using [], and will reflect the 
-        # current values of charge and pepmass.
+        # Retrieve a header using an mgf header string.  CHARGE and PEPMASS 
+        # headers can be retrieved using [], and will reflect the current
+        # values of charge and pepmass.  Keys are stringified and upcased.
         def [](key)
           key = key.to_s.upcase
           case key
           when "PEPMASS" then pepmass.to_s
           when "CHARGE" then charge_to_s
-          else
-            headers[key]
+          else headers[key]
           end
         end
 
-        # Set a header using an mgf header string.  CHARGE and PEPMASS can
-        # be set using formatted string values using []=, and will modify the current
-        # values of charge and pepmass.  
+        # Set a header using an mgf header string.  CHARGE and PEPMASS headers
+        # may be set using using []=, and will modify the current values of
+        # charge and pepmass.  Keys are stringified and upcased.
         def []=(key, value)
           key = key.to_s.upcase
           case key
@@ -90,8 +97,7 @@ module Ms
             value = case value
             when Fixnum then value
             when /^(\d+)([+-])$/ then $1.to_i * ($2 == "+" ? 1 : -1) 
-            else
-              raise Ms::Format::FormatError.new("charge should be an number, or a string formatted like '1+' or '1-'", value) 
+            else raise Ms::Format::FormatError.new("charge should be an number, or a string formatted like '1+' or '1-'", value) 
             end
             
             self.charge = value
@@ -100,14 +106,17 @@ module Ms
           end
         end
 
-        # Formats and puts self to the target.  Use the options to modify the output:
+        # Formats and puts self to the target.  Use the options to modify the
+        # output:
         #
-        # headers:: an array of headers to include (by default all headers will be included;
-        #                  pepmass and charge will always be included)
+        # headers:: an array of headers to include (by default all headers 
+        #           will be included; pepmass and charge will always be 
+        #           included)
         # pepmass_precision::  integer value specifying precision of pepmass
         # mz_precision::  integer value specifying precision of mz values
-        # intensity_precision:: integer value specifying precision of intensity values
-        def puts(target="", options={})
+        # intensity_precision:: integer value specifying precision of intensity
+        #                       values
+        def dump(target="", options={})
           options = {
             :mz_precision => nil,
             :intensity_precision => nil,
@@ -121,30 +130,31 @@ module Ms
           end
             
           target << "CHARGE=#{charge_to_s}\n"
-          target << ("PEPMASS=#{format options[:pepmass_precision]}\n" % pepmass)
+          target << "PEPMASS=#{format options[:pepmass_precision]}\n" % pepmass
 
           data_format = "#{format options[:mz_precision]} #{format options[:intensity_precision]}\n"
           data.each do |data_point|
             target << (data_format % data_point)
           end
-
-          #target << "\n"  # added in some cases?  required?
+          
           target << "END IONS\n"
           target
         end
 
         # Returns self formatted as a string
         def to_s
-          puts
+          dump
         end
 
         private
-
-        def charge_to_s
+        
+        # formats the charge as a string
+        def charge_to_s # :nodoc:
           charge == nil ? "" : "#{charge.abs}#{charge > 0 ? '+' : '-'}"
         end
 
-        def format(precision)
+        # returns a format string for the specified precision
+        def format(precision) # :nodoc:
           precision == nil ? "%s" : "%.#{precision}f"
         end
         
