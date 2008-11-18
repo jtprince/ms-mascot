@@ -110,9 +110,9 @@ module Ms
         [:a, :b, :c, :cladder].each {|key| mask_locations key, [-1] }
         [:x, :y, :Y, :z, :nladder].each {|key| mask_locations key, [0] }
       
-        # mask prolines
-        #mask_locations :c, residue_locations['P'].collect {|i| i-1}
-        #mask_locations :z, residue_locations['P']
+        # # mask prolines
+        # mask_locations :c, residue_locations['P'].collect {|i| i-1}
+        # mask_locations :z, residue_locations['P']
       end
       
       protected
