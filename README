@@ -1,0 +1,22 @@
+= {Ms-Mascot}[http://mspire.rubyforge.org/ms-mascot]
+
+An {Mspire}[http://mspire.rubyforge.org] library supporting {Mascot}[http://www.matrixscience.com/].
+
+== Description
+
+* Lighthouse[http://bahuvrihi.lighthouseapp.com/projects/16692-mspire/tickets]
+* Github[http://github.com/bahuvrihi/ms-mascot/tree/master]
+* {Google Group}[http://groups.google.com/group/mspire-forum]
+
+== Installation
+
+Ms-Mascot is available as a gem on RubyForge[http://rubyforge.org/projects/mspire].  Use:
+
+  % gem install ms-mascot
+
+== Info 
+
+Copyright (c) 2006-2008, Regents of the University of Colorado.
+Developer:: {Simon Chiang}[http://bahuvrihi.wordpress.com], {Biomolecular Structure Program}[http://biomol.uchsc.edu/], {Hansen Lab}[http://hsc-proteomics.uchsc.edu/hansenlab/] 
+Support:: CU Denver School of Medicine Deans Academic Enrichment Fund
+Licence:: {MIT-Style}[link:files/MIT-LICENSE.html]

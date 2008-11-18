@@ -3,8 +3,6 @@ require 'rake/testtask'
 require 'rake/rdoctask'
 require 'rake/gempackagetask'
 
-require 'tap/constants'
-
 #
 # Gem specification
 #
@@ -43,7 +41,7 @@ task :print_manifest do
   
   # sort and output the results
   files.values.sort_by {|exists, file| file }.each do |entry| 
-    puts "%-5s : %s" % entry
+    puts "%-5s %s" % entry
   end
 end
 
@@ -56,7 +54,8 @@ Rake::RDocTask.new(:rdoc) do |rdoc|
   spec = gemspec
   
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title    = 'biomass-mascot'
+  rdoc.title    = 'ms-mascot'
+  rdoc.main   = 'README'
   rdoc.options << '--line-numbers' << '--inline-source'
   rdoc.rdoc_files.include( spec.extra_rdoc_files )
   rdoc.rdoc_files.include( spec.files.select {|file| file =~ /^lib.*\.rb$/} )
@@ -69,6 +68,21 @@ Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.options << '--fmt' << 'tdoc'
 end
 
+desc "Publish RDoc to RubyForge"
+task :publish_rdoc => [:rdoc] do
+  require 'yaml'
+  
+  config = YAML.load(File.read(File.expand_path("~/.rubyforge/user-config.yml")))
+  host = "#{config["username"]}@rubyforge.org"
+  
+  rsync_args = "-v -c -r"
+  remote_dir = "/var/www/gforge-projects/mspire/ms-mascot"
+  local_dir = "rdoc"
+ 
+  sh %{rsync #{rsync_args} #{local_dir}/ #{host}:#{remote_dir}}
+end
+
+
 #
 # Test tasks
 #
@@ -78,7 +92,6 @@ task :default => :test
 
 desc 'Run tests.'
 Rake::TestTask.new(:test) do |t|
-  t.libs = Tap::Exe.instance.collect {|env| env.load_paths }.flatten
   t.test_files = Dir.glob( File.join('test', ENV['pattern'] || '**/*_test.rb') )
   t.verbose = true
   t.warning = true
