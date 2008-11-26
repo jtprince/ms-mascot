@@ -18,11 +18,9 @@ class Ms::Mascot::PredictTest < Test::Unit::TestCase
   I[:...:]           fragment CDLELETNGRDHHTADLCR
   I[:...:]           fragment DHHTADLCR
   I[:...:]           fragment DHHTADLCREK
-  I[:...:]           fragment EK
   I[:...:]           fragment EKLVVR
   I[:...:]           fragment LVVR
   I[:...:]           fragment LVVRR
-  I[:...:]           fragment R
   I[:...:]           fragment RGQPFWLTLHFEGR
   I[:...:]           fragment GQPFWLTLHFEGR
   I[:...:]           fragment GQPFWLTLHFEGRNYEASVDSLTFS

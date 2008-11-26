@@ -19,11 +19,9 @@ module Ms
     #     I[16:30:19]           fragment CDLELETNGRDHHTADLCR
     #     I[16:30:19]           fragment DHHTADLCR
     #     I[16:30:19]           fragment DHHTADLCREK
-    #     I[16:30:19]           fragment EK
     #     I[16:30:19]           fragment EKLVVR
     #     I[16:30:19]           fragment LVVR
     #     I[16:30:19]           fragment LVVRR
-    #     I[16:30:19]           fragment R
     #     I[16:30:19]           fragment RGQPFWLTLHFEGR
     #     I[16:30:19]           fragment GQPFWLTLHFEGR
     #     I[16:30:19]           fragment GQPFWLTLHFEGRNYEASVDSLTFS
@@ -34,6 +32,7 @@ module Ms
       define :fragment, Mascot::Fragment, {:intensity => 1, :unmask => true, :sort => true}
       
       config :headers, nil, &c.hash_or_nil        # a hash of headers to include
+      config :min_length, 3, &c.integer_or_nil    # the minimum peptide length
       config :mz_precision, 6, &c.integer         # the precision of mzs
       config :intensity_precision, 0, &c.integer  # the precision of intensities
       config :pepmass_precision, 6, &c.integer    # the precision of peptide mass
@@ -41,7 +40,13 @@ module Ms
       # Sequences digest and fragment.  When fragment completes, it will add
       # a new mgf entry to the internal entries collection.
       def workflow
-        digest.sequence(fragment, :iterate => true) 
+        digest.on_complete do |_results|
+          _results._iterate.each do |_result|
+            next if min_length && _result._current.length < min_length
+            fragment._execute(_result)
+          end
+        end
+     
         fragment.on_complete do |_result|
           parent_ion_mass, data = _result._current
           next if data.empty?
@@ -66,6 +71,8 @@ module Ms
       end
       
       def process(sequence, target=nil)
+        sequence = sequence.gsub(/\s/, "")
+        
         @entries = []
         digest.execute(sequence)
         
