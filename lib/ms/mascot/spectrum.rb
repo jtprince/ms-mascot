@@ -8,11 +8,50 @@ module Ms
     # full coverage (for whatever series are generated) when identified
     # using Mascot.
     #
+    # === Peptide Mass Error
+    #
+    # The peptide mass calculated by Spectrum is inexact wrt to Mascot.
+    # Mascot uses some unknown algorithm to speed up it's calculation
+    # and introduces some rounding/truncation error somewhere along
+    # the line.  For instance, if you calculate the mass of a peptide
+    # by directly using the Unimod masses, it will NOT be the mass used
+    # by Mascot.  For example:
+    #
+    #   def molecule_mass(c, h, n, o, s)
+    #    c * 12 + h * 1.007825035 + n * 14.003074 + o * 15.99491463 + s * 31.9720707
+    #   end  
+    #
+    #   # Formula for MFSFVDLR: C(47)H(69)N(11)O(11)S(0)
+    #   # Formula for water:    C(0) H(2) N(0) O(1) S(0)
+    #
+    #   molecule_mass(47, 69, 11, 11, 1) + molecule_mass(0, 2, 0, 1, 0) 
+    #   # => 1013.500437745
+    #
+    # Now by comparision:
+    #
+    #    mascot: 1013.500443
+    #    unimod: 1013.500437745
+    #    delta:     0.000005255
+    #
+    # Similar or worse errors are typical and cannot be elimited by 
+    # any known permutation (calculating from the residue masses, 
+    # rounding etc). See http://gist.github.com/31241 for tasks that
+    # perform the calculation using various permutations.
+    #
+    # One helpful note if you try to break the code, you can set the 
+    # number of sig figs to 6 in mascot.dat (MassDecimalPlaces) and 
+    # read the exact peptide mass numbers directly from a result page.
+    #
+    # Spectrum calculates peptide mass using the masses in mass_map, 
+    # ie the rounded residue masses.
     class Spectrum < InSilico::Spectrum
       Element = Constants::Libraries::Element
       
       # A map of the default [monoisotopic, average] masses for a variety
-      # of constants used by Mascot.  
+      # of constants used by Mascot.  The element masses can be traced
+      # back to {Unimod}[http://www.unimod.org/masses.html] and the
+      # residues calculated by using the Unimod masses, then rounding.
+      # 
       #--
       # Taken from the configuration pages on the Hansen Lab server:
       #
