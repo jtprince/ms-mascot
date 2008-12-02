@@ -6,7 +6,7 @@ module Ms
     
     # Submit Documentation
     class Submit < Tap::Http::Dispatch
-      RESULT_REGEXP = /<A HREF="..\/cgi\/master_results.pl\?file=(.*?)\.dat">/im
+      RESULT_REGEXP = /<A HREF="..\/cgi\/master_results.pl\?file=(.*?\.dat)">/im
       ERROR_REGEXP = /<BR>The following error has occured getting your search details:<BR>(.*?)<BR>/im
       MISTAKE_REGEXP = /<BR>Sorry, your search could not be performed due to the following mistake entering data.<BR>(.*?)<BR>/im
       
