@@ -1,5 +1,3 @@
-require 'ms/format/format_error'
-
 module Ms
   module Mascot
     module Mgf
@@ -29,11 +27,11 @@ module Ms
             lines = str.strip.split(/\s*\r?\n\s*/)
 
             unless lines.shift == "BEGIN IONS"
-              raise Ms::Format::FormatError.new("input should begin with 'BEGIN IONS'", str)
+              raise ArgumentError, "input should begin with 'BEGIN IONS'"
             end
 
             unless lines.pop == "END IONS"
-              raise Ms::Format::FormatError.new("input should end with 'END IONS'", str)
+              raise ArgumentError, "input should end with 'END IONS'"
             end
 
             lines.each do |line|
@@ -97,7 +95,7 @@ module Ms
             value = case value
             when Fixnum then value
             when /^(\d+)([+-])$/ then $1.to_i * ($2 == "+" ? 1 : -1) 
-            else raise Ms::Format::FormatError.new("charge should be an number, or a string formatted like '1+' or '1-'", value) 
+            else raise "charge should be an number, or a string formatted like '1+' or '1-'"
             end
             
             self.charge = value

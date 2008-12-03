@@ -80,7 +80,7 @@ module Ms
         # to the target path.
         target = default_path(sequence) if target == nil
         prepare(target)
-        File.open(target, "w") do |file|
+        File.open(target, "wb") do |file|
           @entries.each do |entry|
             entry.dump(file, config)
             file.puts 

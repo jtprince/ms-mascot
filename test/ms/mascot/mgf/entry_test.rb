@@ -36,10 +36,10 @@ END IONS}
   end
     
   def test_parse_raises_error_for_malformed_str
-    err = assert_raise(Ms::Format::FormatError) { Entry.parse("") }
+    err = assert_raise(ArgumentError) { Entry.parse("") }
     assert_equal "input should begin with 'BEGIN IONS'", err.message
     
-    err = assert_raise(Ms::Format::FormatError) { Entry.parse("BEGIN IONS\n") }
+    err = assert_raise(ArgumentError) { Entry.parse("BEGIN IONS\n") }
     assert_equal "input should end with 'END IONS'", err.message
   end
   
@@ -88,10 +88,10 @@ END IONS}
     e['CHARGE'] = "10+"
     assert_equal(10, e.charge)
     
-    err = assert_raise(Ms::Format::FormatError) { e['CHARGE'] = "" }
+    err = assert_raise(RuntimeError) { e['CHARGE'] = "" }
     assert_equal "charge should be an number, or a string formatted like '1+' or '1-'", err.message
     
-    err = assert_raise(Ms::Format::FormatError) { e['CHARGE'] = "1" }
+    err = assert_raise(RuntimeError) { e['CHARGE'] = "1" }
     assert_equal "charge should be an number, or a string formatted like '1+' or '1-'", err.message
   end
   
