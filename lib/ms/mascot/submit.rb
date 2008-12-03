@@ -2,9 +2,8 @@ require 'tap/http/dispatch'
 
 module Ms
   module Mascot
-    # Ms::Mascot::Submit::manifest submits an mgf file 
-    
-    # Submit Documentation
+    # :startdoc::manifest submits an mgf file
+    # UNDER CONSTRUCTION
     class Submit < Tap::Http::Dispatch
       RESULT_REGEXP = /<A HREF="..\/cgi\/master_results.pl\?file=(.*?\.dat)">/im
       ERROR_REGEXP = /<BR>The following error has occured getting your search details:<BR>(.*?)<BR>/im

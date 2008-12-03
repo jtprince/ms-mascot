@@ -2,10 +2,8 @@ require 'tap/http/dispatch'
 
 module Ms
   module Mascot
-    # Ms::Mascot::Export::manifest <replace with manifest summary>
-    # <replace with command line description>
-    
-    # Export Documentation
+    # :startdoc::manifest exports results from a search
+    # UNDER CONSTRUCTION
     class Export < Tap::Http::Dispatch
     
       def process(*mascot_files)
