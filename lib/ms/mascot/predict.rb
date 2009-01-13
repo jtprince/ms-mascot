@@ -41,17 +41,17 @@ module Ms
       # a new mgf entry to the internal entries collection.
       def workflow
         digest.on_complete do |_results|
-          _results._iterate.each do |_result|
-            next if min_length && _result._current.length < min_length
+          _results.splat.each do |_result|
+            next if min_length && _result.value.length < min_length
             fragment._execute(_result)
           end
         end
      
         fragment.on_complete do |_result|
-          parent_ion_mass, data = _result._current
+          parent_ion_mass, data = _result.value
           next if data.empty?
           
-          peptide = _result._values[-2]
+          peptide = _result.sources[0].value
           headers = {
             'TITLE' => "#{peptide} (#{fragment.series.join(', ')})",
             'CHARGE' => fragment.charge,

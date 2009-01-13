@@ -63,9 +63,9 @@ Rake::RDocTask.new(:rdoc) do |rdoc|
   # Using Tdoc to template your Rdoc will result in configurations being
   # listed with documentation in a subsection following attributes.  Not
   # necessary, but nice.
-  require 'tap/support/tdoc'
-  rdoc.template = 'tap/support/tdoc/tdoc_html_template' 
-  rdoc.options << '--fmt' << 'tdoc'
+  require 'cdoc'
+  rdoc.template = 'cdoc/cdoc_html_template' 
+  rdoc.options << '--fmt' << 'cdoc'
 end
 
 desc "Publish RDoc to RubyForge"
