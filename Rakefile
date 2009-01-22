@@ -87,20 +87,13 @@ end
 # Test tasks
 #
 
-desc 'Default: Run tests.'
-task :default => :test
-
-desc 'Run tests.'
-Rake::TestTask.new(:test) do |t|
-  t.test_files = Dir.glob( File.join('test', ENV['pattern'] || '**/*_test.rb') )
-  t.verbose = true
-  t.warning = true
-end
+desc 'Default: Run specs.'
+task :default => :spec
 
 desc 'Run specs.'
 Rake::TestTask.new(:spec) do |t|
   t.test_files = Dir.glob( File.join('spec', ENV['pattern'] || '**/*_spec.rb') )
-  #t.verbose = true
-  #t.warning = true
+  t.verbose = true
+  t.warning = true
 end
 
