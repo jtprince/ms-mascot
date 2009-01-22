@@ -1,9 +1,10 @@
-require File.join(File.dirname(__FILE__), '../../../tap_test_helper.rb') 
+require File.join(File.dirname(__FILE__), '../../../tap_spec_helper.rb') 
 require 'ms/mascot/mgf/archive'
 require 'stringio'
 
-class MgfArchiveTest < Test::Unit::TestCase
-  include Ms::Mascot::Mgf
+include Ms::Mascot::Mgf
+
+describe Archive do
   
   MGF_1 = %Q{BEGIN IONS
 TITLE=one
@@ -22,7 +23,7 @@ PEPMASS=3.1416
 END IONS
 }
 
-  def test_reindex
+  it 'reindex' do
     strio = StringIO.new(MGF_1 + MGF_2)
     begin
       a = Archive.new(strio)
@@ -40,7 +41,7 @@ END IONS
     end
   end
   
-  def test_str_to_entry
+  it 'str_to_entry' do
     begin
       a = Archive.new
       e = a.str_to_entry(MGF_1)

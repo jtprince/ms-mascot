@@ -1,7 +1,8 @@
-require File.join(File.dirname(__FILE__), '../../tap_test_helper.rb') 
+require File.join(File.dirname(__FILE__), '../../tap_spec_helper.rb') 
 require 'ms/mascot/predict'
 
-class Ms::Mascot::PredictTest < Test::Unit::TestCase
+
+describe Ms::Mascot::Predict do
   acts_as_script_test
   acts_as_file_test
   

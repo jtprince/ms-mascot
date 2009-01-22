@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), '../../tap_test_helper.rb') 
+require File.join(File.dirname(__FILE__), '../../tap_spec_helper.rb') 
 require 'ms/mascot/spectrum'
 require 'ms/mascot'
 
@@ -9,8 +9,12 @@ require 'ms/mascot'
 # an expected series.
 #
 
-class Ms::Mascot::SpectrumTest < Test::Unit::TestCase
-  include Ms::Mascot
+# don't like including this in the main object space, but it doesn't work
+# inside the describe!
+include Ms::Mascot
+
+describe Ms::Mascot do
+  # @TODO: for some reason the include doesn't really work for minitest/spec
 
   def assert_series_equal(series, expected, frag, delta_mass)
     a = expected[series]
@@ -55,7 +59,7 @@ class Ms::Mascot::SpectrumTest < Test::Unit::TestCase
     ['b', 'b++',  'y', 'y++',  'y*', 'y*++']
   end
   
-  def test_fragments_vs_mascot_APGFGDNR
+  it 'fragments_vs_mascot_APGFGDNR' do
     series = mascot_series %Q{
 #  	b  	b++  	b*  	b*++  	b0  	b0++  	Seq.  	y  	y++  	y*  	y*++  	y0  	y0++  	#
 1 	72.04 	36.53 	  	  	  	  	A 	  	  	  	  	  	  	8
@@ -78,7 +82,7 @@ class Ms::Mascot::SpectrumTest < Test::Unit::TestCase
   end
   
   # http://hsc-mascot.uchsc.edu/mascot/cgi/peptide_view.pl?file=../data/20080125/F006779.dat&query=6&hit=1&index=TGM1_HUMAN&px=1&section=5&ave_thresh=36
-  def test_fragments_vs_mascot_IVYVEEK
+  it 'fragments_vs_mascot_IVYVEEK' do
     series = mascot_series %Q{
 #  	Immon.  	a  	a0  	b  	b0  	c  	Seq.  	x  	y  	y0  	z  	z+1  	z+2  	#
 1 	86.10 	86.10 	  	114.09 	  	131.12 	I 	  	  	  	  	  	  	7
@@ -96,7 +100,7 @@ class Ms::Mascot::SpectrumTest < Test::Unit::TestCase
   end
   
     #http://hsc-mascot.uchsc.edu/mascot/cgi/peptide_view.pl?file=../data/20080125/F006779.dat&query=40&hit=1&index=TGM1_HUMAN&px=1&section=5&ave_thresh=36
-  def test_fragments_vs_mascot_RPDLPSGFDGWQVVDATPQETSSGIFCCGPCSVESIK
+  it 'fragments_vs_mascot_RPDLPSGFDGWQVVDATPQETSSGIFCCGPCSVESIK' do
     series = mascot_series %Q{
 #  	Immon.  	a  	a*  	a0  	b  	b*  	b0  	c  	d  	d'  	Seq.  	x  	y  	y0  	z  	z+1  	z+2  	#
 1 	129.11 	129.11 	112.09 	  	157.11 	140.08 	  	174.13 	44.05 	  	R 	  	  	  	  	  	  	37

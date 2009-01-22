@@ -1,8 +1,8 @@
-require File.join(File.dirname(__FILE__), '../../../tap_test_helper.rb') 
+require File.join(File.dirname(__FILE__), '../../../tap_spec_helper.rb') 
 require 'ms/mascot/mgf/entry'
 
-class MgfEntryTest < Test::Unit::TestCase
-  include Ms::Mascot::Mgf
+include Ms::Mascot::Mgf
+describe Entry do
   
   # Xcalibur RAW file extracted using raw_to_mgf and abbreviated (7100401blank.RAW)
   MGF_0 = %Q{BEGIN IONS
@@ -21,7 +21,7 @@ END IONS}
   # class parse tests 
   #
   
-  def test_parse
+  it 'parse' do
     e = Entry.parse(MGF_0)
     assert_equal 321.571138, e.pepmass
     assert_equal 2, e.charge
@@ -35,11 +35,11 @@ END IONS}
     ], e.data)
   end
     
-  def test_parse_raises_error_for_malformed_str
-    err = assert_raise(ArgumentError) { Entry.parse("") }
+  it 'parse_raises_error_for_malformed_str' do
+    err = lambda { Entry.parse("") }.must_raise(ArgumentError) 
     assert_equal "input should begin with 'BEGIN IONS'", err.message
     
-    err = assert_raise(ArgumentError) { Entry.parse("BEGIN IONS\n") }
+    err = lambda { Entry.parse("BEGIN IONS\n") }.must_raise(ArgumentError) 
     assert_equal "input should end with 'END IONS'", err.message
   end
   
@@ -47,7 +47,7 @@ END IONS}
   # initialize tests 
   #
 
-  def test_entry_initialization
+  it 'entry_initialization' do
     e = Entry.new
     assert_equal({}, e.headers)
     assert_equal(nil, e.charge)
@@ -65,7 +65,7 @@ END IONS}
   # CHARGE get/set
   #
   
-  def test_get_charge_using_AREF
+  it 'get_charge_using_AREF' do
     e = Entry.new
     e.charge = 1
     assert_equal "1+", e['CHARGE']
@@ -74,7 +74,7 @@ END IONS}
     assert_equal "1-", e['CHARGE']
   end
   
-  def test_set_charge_using_ASET
+  it 'set_charge_using_ASET' do
     e = Entry.new
     e['CHARGE'] = "1-"
     assert_equal(-1, e.charge)
@@ -88,10 +88,12 @@ END IONS}
     e['CHARGE'] = "10+"
     assert_equal(10, e.charge)
     
-    err = assert_raise(RuntimeError) { e['CHARGE'] = "" }
+    err = lambda { e['CHARGE'] = "" }.must_raise(RuntimeError)
+    #err = assert_raise(RuntimeError) { e['CHARGE'] = "" }
     assert_equal "charge should be an number, or a string formatted like '1+' or '1-'", err.message
     
-    err = assert_raise(RuntimeError) { e['CHARGE'] = "1" }
+    err = lambda { e['CHARGE'] = "1" }.must_raise(RuntimeError)
+    #err = assert_raise(RuntimeError) { e['CHARGE'] = "1" }
     assert_equal "charge should be an number, or a string formatted like '1+' or '1-'", err.message
   end
   
@@ -99,13 +101,13 @@ END IONS}
   # PEPMASS get/set
   #
   
-  def test_set_pepmass_using_ASET
+  it 'set_pepmass_using_ASET' do
     e = Entry.new
     e['PEPMASS'] = "3.14159"
     assert_equal 3.14159, e.pepmass
   end
   
-  def test_get_pepmass_using_AREF
+  it 'get_pepmass_using_AREF' do
     e = Entry.new
     e.pepmass = 3.14159
     assert_equal "3.14159", e['PEPMASS']
@@ -115,7 +117,7 @@ END IONS}
   # dump tests
   #
   
-  def test_dump_on_an_empty_entry
+  it 'dump_on_an_empty_entry' do
     e = Entry.new
     assert_equal(
 %Q{BEGIN IONS
@@ -125,7 +127,7 @@ END IONS
 }, e.dump)
   end
 
-  def test_dump_formats_an_entry_in_mgf_format
+  it 'dump_formats_an_entry_in_mgf_format' do
     e = Entry.new
     e["TITLE"] = "constants"
     e.pepmass = 3.14159
@@ -142,7 +144,7 @@ END IONS
 }, e.dump)
   end
   
-  def test_dump_with_header_options_adds_or_filters_headers
+  it 'dump_with_header_options_adds_or_filters_headers' do
     e = Entry.new(:A => 'a', :B => 'b')
     assert_equal(
 %Q{BEGIN IONS
@@ -154,7 +156,7 @@ END IONS
 }, e.dump("", :headers => ['A', 'C']))
   end
   
-  def test_dump_with_mz_and_intensity_precision_options_sets_output_precision_for_data
+  it 'dump_with_mz_and_intensity_precision_options_sets_output_precision_for_data' do
     e = Entry.new({}, [
       [0.1230888, 0.120888],
       [0.1235888, 0.125888],
@@ -170,7 +172,7 @@ END IONS
 }, e.dump("", :mz_precision => 3, :intensity_precision => 2))
   end
   
-  def test_dump_with_pepmass_precision_option_sets_pepmass_preceision
+  it 'dump_with_pepmass_precision_option_sets_pepmass_preceision' do
     e = Entry.new
     e.pepmass = 0.1230888
     assert_equal(%Q{BEGIN IONS
@@ -205,12 +207,12 @@ END IONS
     end
   end
   
-  def test_dump_returns_target
+  it 'dump_returns_target' do
     target = MockTarget.new
     assert_equal target, Entry.new.dump(target)
   end
   
-  def test_dump_pushes_to_the_target
+  it 'dump_pushes_to_the_target' do
     target = MockTarget.new
     Entry.new.dump(target)
     

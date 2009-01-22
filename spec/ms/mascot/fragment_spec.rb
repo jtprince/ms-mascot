@@ -1,10 +1,10 @@
-require File.join(File.dirname(__FILE__), '../../tap_test_helper.rb') 
+require File.join(File.dirname(__FILE__), '../../tap_spec_helper.rb') 
 require 'ms/mascot/fragment'
 
-class Ms::Mascot::FragmentTest < Test::Unit::TestCase
+describe 'Ms::Mascot::FragmentTest' do
   acts_as_script_test 
   
-  def test_fragment_documentation
+  it 'gives fragment documentation' do
     script_test(File.dirname(__FILE__) +  "../../../../") do |cmd|
       cmd.check "documentation", %q{
 % rap fragment TVQQEL --+ dump --no-audit

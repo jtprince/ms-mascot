@@ -1,9 +1,11 @@
-require File.join(File.dirname(__FILE__), '../../tap_test_helper.rb') 
+require File.join(File.dirname(__FILE__), '../../tap_spec_helper.rb') 
 require 'ms/mascot/submit'
 require 'tap/test/http_test'
 
-class SubmitTest < Test::Unit::TestCase
-  acts_as_tap_test 
+include Ms::Mascot
+
+describe Submit do
+  acts_as_tap_test
   
   include Tap::Test::HttpTest
   
@@ -13,7 +15,7 @@ class SubmitTest < Test::Unit::TestCase
   
   def test_submit
     web_test do
-      t = Ms::Mascot::Submit.new(
+      t = Submit.new(
         :url => target, 
         :request_method => :post,
         :headers => {'Content-Type' => 'multipart/form-data; boundary=1234567890'},
