@@ -54,7 +54,17 @@ module Ms
         
         # The peptide mass of the entry
         attr_accessor :pepmass
-        
+
+        # returns the title of the entry (or nil if none)
+        def title
+          @headers['TITLE']
+        end
+
+        # sets the title
+        def title=(string)
+          @headers['TITLE'] = string
+        end
+
         # The data (mz/intensity) for the entry
         attr_accessor :data
         
