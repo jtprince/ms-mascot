@@ -3,10 +3,19 @@ require 'ms/mascot/dat'
 
 include Ms::Mascot
 
-
 describe Dat do
   before do
     @file = '/home/jtprince/ms/data/090113_init/mini/F040565.dat'
+  end
+
+  it 'can go through queries' do
+    Dat.open(@file) do |obj|
+      obj.each_query do |query|
+        query.num_vals.must_equal query['num_vals']
+        p query.num_vals
+      end
+    end
+
   end
 
   it 'indexes the file' do
@@ -43,5 +52,26 @@ describe Dat do
       end
 
     end
+  end
+
+  it 'has methods to return sections' do
+    # these are currently just Strings, but there they are.
+    Dat.open(@file) do |obj|
+      %w(parameters masses unimod enzyme header summary decoy_summary peptides decoy_peptides proteins index).each do |meth|
+        obj.must_respond_to meth.to_sym
+      end
+    end
+  end
+
+  it 'makes hashes from strings of parameters' do
+    string = "charge=3+
+mass_min=234.210000
+mass_max=1984.020000
+int_min=1.9
+int_max=7689
+num_vals=748
+"
+    exp = {"num_vals"=>"748", "int_max"=>"7689", "int_min"=>"1.9", "mass_max"=>"1984.020000", "mass_min"=>"234.210000", "charge"=>"3+"}
+    Dat.str_to_hash(string).must_equal exp
   end
 end

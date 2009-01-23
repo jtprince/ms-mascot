@@ -1,33 +1,13 @@
 
+require 'ms/mascot/dat/query'
+
 module Ms; end
 module Ms::Mascot; end
-
-
-=begin
-class IO
-	def reverse_each(&proc)
-		seek(0,SEEK_END)
-		i = tell
-		j = nil
-		buf = ""
-		loop do
-			k = buf.rindex(10,-2)
-			if k then
-				proc.call buf.slice!(k+1..-1)
-			else
-				if i==0 then proc.call(buf); return self; end
-				j,i = i,[0,i-4096].max
-				seek(i,SEEK_SET)
-				buf = read(j-i) + buf
-			end
-		end
-	end
-end
-=end
 
 class Ms::Mascot::Dat
   MascotSection_re = /Content-Type: application\/x-Mascot; name="(\w+)"/o
   QueryMatch_re = /query(\d+)/o
+  ParamMatch_re = /(\w+)=(.*)/o
   class << self
    # returns {'<type>' => [start_byte, num_bytes]}
     # type is one of: parameters, masses, unimod, enzyme, header, summary,
@@ -38,7 +18,7 @@ class Ms::Mascot::Dat
     #       index['query']       # -> [[3001,70], [3071,80], [3152,75]...]
     #       index['query'][75]   # -> [8542,93] # start & length for query 75
     # REWINDS the io
-    def index(io)
+    def index(io)  # :nodoc:
       ar = []
       # get the boundary size and advance io to start
       io.gets
@@ -64,7 +44,6 @@ class Ms::Mascot::Dat
         end
       end
       hash['query'] = query_ar if query_ar.size > 0
-
       io.rewind
       hash
     end
@@ -72,8 +51,60 @@ class Ms::Mascot::Dat
     # convenience method to index a filename
     def index_file(filename); File.open(filename) {|io| index(io) } end
 
-    def open(filename)
+    # transforms dat parameters into a hash, should work on most sections
+    # except the unimod xml
+    def str_to_hash(string, hash={})   # :nodoc:
+      string.each("\n") do |line|
+        md = ParamMatch_re.match(line)
+        hash[md[1]] = md[2]
+      end
+      hash
     end
 
+    def create_index_methods(obj, names)
+      names.each do |key|
+        unless obj.respond_to? key
+          obj.instance_eval( "def #{key}(); read_section(index['#{key}']); end" )
+        end
+      end
+    end
+
+    def open(filename, &block)
+      File.open(filename) do |io|
+        obj = self.new(io)
+        create_index_methods(obj, obj.index.keys )
+        block.call(obj)
+      end
+    end
   end
+
+  attr_reader :index
+  attr_reader :io
+
+  # use Dat.open(filename, &block) rather than this.
+  def initialize(io) # :nodoc:
+    @io = io
+    @index = self.class.index(io)
+    @query_index_ar = @index['query']
+  end
+  
+  def each_query(&block)
+    @query_index_ar.each do |ar|
+      if ar
+        block.call( Ms::Mascot::Dat::Query.new( read_section(ar) ) )
+      end
+    end
+  end
+
+  def query(num)
+    Ms::Mascot::Dat::Query.new( @query_ar[num] )
+  end
+
+  # Returns a string
+  # takes an ar: [pos, length]
+  def read_section(ar) # :nodoc
+    @io.pos = ar.first
+    @io.read(ar.last)
+  end
+
 end
