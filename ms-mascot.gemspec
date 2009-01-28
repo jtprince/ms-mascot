@@ -37,6 +37,8 @@ Gem::Specification.new do |s|
     lib/ms/mascot/predict.rb
     lib/ms/mascot/spectrum.rb
     lib/ms/mascot/submit.rb
+    lib/ms/mascot/dat.rb
+    lib/ms/mascot/dat/query.rb
     tap.yml
   }
 end

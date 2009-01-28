@@ -1,6 +1,9 @@
 require File.join(File.dirname(__FILE__), '../../tap_spec_helper.rb') 
 require 'ms/mascot/dat'
 
+
+class Ms::Mascot::Dat::Query ; end  # needed to ask for class name
+
 include Ms::Mascot
 
 describe Dat do
@@ -8,18 +11,63 @@ describe Dat do
     @file = '/home/jtprince/ms/data/090113_init/mini/F040565.dat'
   end
 
-  it 'can go through queries' do
+  it 'can access queries with each_query, query(num), or query' do
+    query_class = Ms::Mascot::Dat::Query
     Dat.open(@file) do |obj|
-      obj.each_query do |query|
-        query.num_vals.must_equal query['num_vals']
-        p query.num_vals
-      end
-    end
 
+      # each_query
+      qrs = []  # for later spec
+      obj.each_query do |query|
+        query.must_be_kind_of query_class
+        qrs << query
+      end
+
+      # query
+      obj.query(0).must_be_nil
+      obj.query(1).must_be_kind_of query_class
+      obj.query(2).wont_equal obj.query(1)
+
+      # queries
+      obj.queries.must_equal qrs
+      obj.queries((1..2).to_a).size.must_equal 2
+      obj.queries([0]).must_equal [nil]
+      obj.queries([5]).must_equal [nil]
+    end
   end
 
-  it 'indexes the file' do
-    ind = Dat.index_file(@file)
+ 
+  it 'has methods to return sections' do
+    # some of these are currently just Strings, but there they are.
+    Dat.open(@file) do |obj|
+      %w(parameters masses unimod enzyme header summary decoy_summary peptides decoy_peptides proteins index).each do |meth|
+        obj.must_respond_to meth.to_sym
+      end
+    end
+  end
+
+  it 'just returns hashes for applicable sections' do
+    Dat.open(@file) do |obj|
+      Dat::HASHES.each do |meth|
+        hash = obj.send meth.to_sym
+        hash.must_be_kind_of Hash
+        hash.size.must_be :>=, 5
+      end
+      # just to make sure the content is there:
+      obj.parameters['TOLU'].must_equal 'ppm'
+      obj.header['date'].must_equal '1232579902'
+      obj.masses['C'].must_equal '103.009185'
+      obj.index['summary'].must_equal '495'
+    end
+  end
+
+  ##############################################
+  # more private:
+  ##############################################
+  
+  it 'indexes the file (with a byte index)' do
+    ind = File.open(@file) do |io|
+      Dat.byte_index(io)
+    end
 
     first_last = {
       'parameters' => ["LICENSE=Licensed to: HHMI / University of Colorado, Chem and Biochem. (041U000579), (1 processor).", "INTERNALS=0.0,700.0"],
@@ -54,15 +102,6 @@ describe Dat do
     end
   end
 
-  it 'has methods to return sections' do
-    # these are currently just Strings, but there they are.
-    Dat.open(@file) do |obj|
-      %w(parameters masses unimod enzyme header summary decoy_summary peptides decoy_peptides proteins index).each do |meth|
-        obj.must_respond_to meth.to_sym
-      end
-    end
-  end
-
   it 'makes hashes from strings of parameters' do
     string = "charge=3+
 mass_min=234.210000
@@ -74,4 +113,6 @@ num_vals=748
     exp = {"num_vals"=>"748", "int_max"=>"7689", "int_min"=>"1.9", "mass_max"=>"1984.020000", "mass_min"=>"234.210000", "charge"=>"3+"}
     Dat.str_to_hash(string).must_equal exp
   end
+
+
 end
