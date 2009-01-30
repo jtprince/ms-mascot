@@ -4,7 +4,7 @@ module Ms
   module Mascot
     module Dat
       
-      # Provides array-like access to an mgf archival file.
+      # Provides access to a Mascot dat file.
       class Archive < ExternalArchive
         module Utils
           module_function
@@ -44,13 +44,14 @@ module Ms
             {:content_type => $1, :name => $2}
           end
           
-          def content_type(metadata)
-            const_name = metadata[:name].camelize
-            unless metadata[:content_type] == 'application/x-Mascot' && Dat.const_defined?(const_name)
+          # %w{parameters masses unimod enzyme taxonomy header summary mixture index peptides proteins quantitation}
+          def content_type_class(metadata)
+            unless metadata[:content_type] == 'application/x-Mascot'
               raise "unknown content_type: #{metadata.inspect}"
             end
-
-            Dat.const_get(const_name)
+            
+            const_name = metadata[:name].camelize
+            Dat.const_defined?(const_name) ? const_name : nil
           end
         end
         
@@ -78,14 +79,28 @@ module Ms
         # Reindexes self.
         def reindex(&block)
           @section_names.clear
-          reindex_by_sep(boundary, :entry_follows_sep => true, &block)
+          reindex_by_sep(boundary, 
+            :entry_follows_sep => true, 
+            :exclude_sep => true,
+          &block)
+          
+          # remove the first and last entries, which contain
+          # the metadata and indicate the end of the multipart 
+          # form data.
+          io_index.shift
+          io_index.pop
+           
+          self
         end
         
         # Converts str into an entry according to the content type header
         # which should be present at the start of the string.
         def str_to_entry(str)
-          metadata = parse_content_type(str)
-          content_type(metadata).parse(str)
+          if ctc = content_type_class(parse_content_type(str))
+            ctc.parse(str)
+          else
+            str
+          end
         end
         
         # Returns the entry for the named section.
@@ -95,7 +110,7 @@ module Ms
         
         # Returns the index of the named section.
         def section_index(name)
-          0.upto(length) do |index|
+          0.upto(length - 1) do |index|
             return index if section_name(index) == name
           end
           nil
@@ -104,15 +119,23 @@ module Ms
         # Returns the section name for the entry at index.  Undetermined
         # section names are parsed from the entry's Content-Type header.
         def section_name(index)
+          resolve_sections if index < 0
           @section_names[index] ||= parse_section_name(index)
+        end
+        
+        # Resolves all sections.
+        def resolve_sections
+          (@section_names.length).upto(length - 1) do |index| 
+            section_name(index)
+          end
         end
         
         private
         
         # helper to go to the entry at index and parse the section name
         def parse_section_name(index) # :nodoc:
-          entry_start, entry_length = io_index[index]
-          io.pos = entry_start + metadata[:boundary].length + 2
+          return nil unless index = io_index[index]
+          io.pos = index[0] + 1
           parse_content_type(io.readline)[:name]
         end
       end
