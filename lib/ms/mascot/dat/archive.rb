@@ -3,6 +3,14 @@ require 'external'
 module Ms
   module Mascot
     module Dat
+      CONTENT_TYPE_CLASSES = {}
+      
+      # currently unimplemented: unimod enzyme taxonomy mixture quantitation
+      sections = %w{
+        header index masses parameters peptides proteins summary
+      }.each do |name|
+        CONTENT_TYPE_CLASSES[name] = "ms/mascot/dat/#{name}"
+      end 
       
       # Provides access to a Mascot dat file.
       class Archive < ExternalArchive
@@ -44,14 +52,19 @@ module Ms
             {:content_type => $1, :name => $2}
           end
           
-          # %w{parameters masses unimod enzyme taxonomy header summary mixture index peptides proteins quantitation}
           def content_type_class(metadata)
             unless metadata[:content_type] == 'application/x-Mascot'
               raise "unknown content_type: #{metadata.inspect}"
             end
             
-            const_name = metadata[:name].camelize
-            Dat.const_defined?(const_name) ? const_name : nil
+            name = metadata[:name]
+            case const = CONTENT_TYPE_CLASSES[name]
+            when String
+              require const
+              CONTENT_TYPE_CLASSES[name] = Dat.const_get(name.capitalize)
+            else
+              const
+            end
           end
         end
         

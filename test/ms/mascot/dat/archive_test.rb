@@ -162,4 +162,32 @@ content
     assert_equal 2, dat.length
     assert_equal nil, dat.section_name(10)
   end
+  
+  #
+  # str_to_entry test
+  #
+  
+  PARAMETERS_SECTION = %Q{
+
+Content-Type: application/x-Mascot; name="parameters"
+
+LICENSE=Licensed to: Matrix Science Internal use only - Frill, (4 processors).
+MP=
+NM=
+COM=Peptide Mass Fingerprint Example
+IATOL=
+}
+
+  def test_str_to_entry_parses_known_content_types
+    dat = Archive.new(io)
+    p = dat.str_to_entry(PARAMETERS_SECTION)
+    assert_equal Ms::Mascot::Dat::Parameters, p.class
+    assert_equal({
+      'LICENSE' => 'Licensed to: Matrix Science Internal use only - Frill, (4 processors).',
+      'MP' => '',
+      'NM' => '',
+      'COM' => 'Peptide Mass Fingerprint Example',
+      'IATOL' => ''
+    }, p.parameters)
+  end
 end
