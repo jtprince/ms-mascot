@@ -1,7 +1,7 @@
 require File.join(File.dirname(__FILE__), '../../../tap_test_helper.rb') 
-require 'ms/mascot/dat/parameters'
+require 'ms/mascot/dat/section'
 
-class ParametersTest < Test::Unit::TestCase
+class SectionTest < Test::Unit::TestCase
   include Ms::Mascot::Dat
   
   #
@@ -21,14 +21,14 @@ IATOL=
 }
 
   def test_parse_parses_and_returns_new_instance
-    p = Parameters.parse(SAMPLE_SECTION)
+    p = Section.parse(SAMPLE_SECTION)
     assert_equal({
       'LICENSE' => 'Licensed to: Matrix Science Internal use only - Frill, (4 processors).',
       'MP' => '',
       'NM' => '',
       'COM' => 'Peptide Mass Fingerprint Example',
       'IATOL' => ''
-    }, p.parameters)
+    }, p.data)
   end
 
   # Put together from several dat files/sections all with the
@@ -55,7 +55,7 @@ q1_p1_terms=K,I:K,I:K,I
 }
 
   def test_parse_correctly_parses_a_variety_of_parameters
-    p = Parameters.parse(MISHMASH_SECTION)
+    p = Section.parse(MISHMASH_SECTION)
     assert_equal({
       "LICENSE" => "Licensed to: Matrix Science Internal use only - Frill, (4 processors).",
       "IATOL" => "",
@@ -72,18 +72,18 @@ q1_p1_terms=K,I:K,I:K,I
       "q1_p1_terms" => "K,I:K,I:K,I",
       "\"CASB_SHEEP\"" => "24859.19,\"Beta-casein precursor - Ovis aries (Sheep)\"",
       "\"CASB_CAPHI\"" => "24849.17,\"Beta-casein precursor - Capra hircus (Goat)\""
-    }, p.parameters)
+    }, p.data)
   end
   
   #
-  # Parameters.section_name test
+  # Section.section_name test
   #
   
   def test_class_section_name_documentation
-    assert_equal "parameters", Ms::Mascot::Dat::Parameters.section_name
+    assert_equal "section", Ms::Mascot::Dat::Section.section_name
   end
   
-  class Subclass < Parameters
+  class Subclass < Section
   end
   
   def test_class_section_name_is_downcased_unnested_constant_name
@@ -95,7 +95,7 @@ q1_p1_terms=K,I:K,I:K,I
   #
   
   def test_section_name_is_class_section_name
-    assert_equal "parameters", Ms::Mascot::Dat::Parameters.new.section_name
+    assert_equal "section", Ms::Mascot::Dat::Section.new.section_name
     assert_equal "subclass", Subclass.new.section_name
   end
   
@@ -104,10 +104,10 @@ q1_p1_terms=K,I:K,I:K,I
   #
   
   def test_to_s_formats_parameters_with_content_type_header
-    p = Parameters.new('key' => 'value')
+    p = Section.new('key' => 'value')
     assert_equal %Q{
 
-Content-Type: application/x-Mascot; name="parameters"
+Content-Type: application/x-Mascot; name="section"
 
 key=value
 }, p.to_s

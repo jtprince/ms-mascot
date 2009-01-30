@@ -188,6 +188,6 @@ IATOL=
       'NM' => '',
       'COM' => 'Peptide Mass Fingerprint Example',
       'IATOL' => ''
-    }, p.parameters)
+    }, p.data)
   end
 end

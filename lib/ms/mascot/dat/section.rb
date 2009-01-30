@@ -4,7 +4,7 @@ module Ms
   module Mascot
     module Dat
       
-      # Represents a 'parameters' section of a dat file, formatted like this:
+      # Represents a 'section' section of a dat file, formatted like this:
       #
       #   Content-Type: application/x-Mascot; name="parameters"
       #   
@@ -16,60 +16,60 @@ module Ms
       #   ...
       #
       # Example from mascot data F981122.dat
-      class Parameters
+      class Section
+        
+        # Matches a content-type declaration plus any preceding/following
+        # whitespace.  The section name is matched in slot 0.
+        CONTENT_TYPE_REGEXP = /\s*Content-Type: application\/x-Mascot; name=\"(.*?)\"\n\s*/
+        
+        # A format string used to format parameters as a string.
+        TO_S_FORMAT = "%s=%s\n"
+              
         class << self
           
-          # Parses a new instance from str.  Parameters after then content-type
-          # declaration are parsed into the parameters hash.  Parameters follow
-          # a simple "key=value\n" pattern, and may be have the key quoted like
-          # "\"key\"=value\n".
+          # Parses a new instance from str.  Section after then content-type
+          # declaration are parsed into the parameters hash.  Section follow
+          # a simple "key=value\n" pattern.
           def parse(str)
             params = {}
             scanner = StringScanner.new(str)
-      
+            
             # skip whitespace and content type declaration
-            scanner.scan(/\s*Content-Type:.*?\n\s*/)
-      
+            unless scanner.scan(CONTENT_TYPE_REGEXP)
+              raise "unknown content type: #{content_type}"
+            end
+            section_name = scanner[0]
+            
             # scan each pair.
-            while key = scanner.scan(/[^=]+"?/)
-              scanner.skip(/"?=/)
+            while key = scanner.scan(/[^=]+/)
+              scanner.skip(/=/)
               params[key] = scanner.scan(/[^\n]*/)
               scanner.skip(/\n/)
             end
-      
-            new(params)
+            
+            new(params, section_name)
           end
           
           # Returns the name of the section represented by this class.  Section
           # names are by default the downcase, unnested class name, for
           # example:
           #
-          #   Ms::Mascot::Dat::Parameters.section_name  # => "parameters"
+          #   Ms::Mascot::Dat::Section.section_name  # => "parameters"
           #
           def section_name
             @section_name ||= to_s.split('::').last.downcase
           end
         end
         
-        # A format string used to format parameters as a string.  By default
-        # TO_S_FORMAT reflects the "key=value\n" syntax where key is not
-        # quoted.
-        TO_S_FORMAT = "%s=%s\n"
-        
-        # A hash of parameters in self.
-        attr_reader :parameters
-        
-        def initialize(parameters={})
-          @parameters = parameters
-        end
-        
-        def [](key)
-          parameters[key]
-        end
+        # A hash of data in self.
+        attr_reader :data
         
         # The class section_name.
-        def section_name
-          self.class.section_name
+        attr_reader :section_name
+        
+        def initialize(data={}, section_name=self.class.section_name)
+          @data = data
+          @section_name = section_name
         end
         
         # Formats self as a string with the content-type header.
@@ -78,7 +78,7 @@ module Ms
 
 Content-Type: application/x-Mascot; name="#{section_name}"
 
-#{parameters.to_a.collect {|entry| TO_S_FORMAT % entry}.join}}
+#{data.to_a.collect {|entry| TO_S_FORMAT % entry}.join}}
         end
       end
     end

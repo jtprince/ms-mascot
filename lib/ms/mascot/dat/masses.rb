@@ -1,4 +1,4 @@
-require 'ms/mascot/dat/parameters'
+require 'ms/mascot/dat/section'
 
-class Ms::Mascot::Dat::Masses << Parameters
+class Ms::Mascot::Dat::Masses < Ms::Mascot::Dat::Section
 end
