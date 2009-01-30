@@ -58,11 +58,15 @@ module Ms
         
         # A hash of parameters in self.
         attr_reader :parameters
-  
+        
         def initialize(parameters={})
           @parameters = parameters
         end
-  
+        
+        def [](key)
+          parameters[key]
+        end
+        
         # The class section_name.
         def section_name
           self.class.section_name
