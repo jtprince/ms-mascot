@@ -2,28 +2,17 @@ require File.join(File.dirname(__FILE__), '../../tap_spec_helper.rb')
 require 'ms/mascot/dat'
 
 
+describe 'Dat usage' do
 
-#class Ms::Mascot::Dat::Query ; end  # needed to ask for class name
-
-
-describe Dat do
-
-  dat_class = Ms::Mascot.const_get('Dat')
+  include Ms::Mascot
+  Dat = Ms::Mascot.const_get('Dat')
   
   before do
     @file = '/home/jtprince/ms/data/090113_init/mini/F040565.dat'
   end
 
-  it 'runs' do
-    p self.class.included_modules
-    p dat_class.str_to_hash("BOB")
-    x =  self.class.const_get('Dat')
-    x.open(@file) do |x|
-    end
-  end
-
-  xit 'can access queries with each_query, query(num), or query' do
-    query_class = Ms::Mascot::Dat::Query
+  it 'can access queries with each_query, query(num), or query' do
+    query_class = Dat.const_get 'Query'
     Dat.open(@file) do |obj|
 
       # each_query
@@ -47,7 +36,7 @@ describe Dat do
   end
 
  
-  xit 'has methods to return sections' do
+  it 'has methods to return sections' do
     # some of these are currently just Strings, but there they are.
     Dat.open(@file) do |obj|
       %w(parameters masses unimod enzyme header summary decoy_summary peptides decoy_peptides proteins index).each do |meth|
@@ -56,7 +45,7 @@ describe Dat do
     end
   end
 
-  xit 'just returns hashes for applicable sections' do
+  it 'just returns hashes for applicable sections' do
     Dat.open(@file) do |obj|
       Dat::HASHES.each do |meth|
         hash = obj.send meth.to_sym
@@ -75,7 +64,7 @@ describe Dat do
   # more private:
   ##############################################
   
-  xit 'indexes the file (with a byte index)' do
+  it 'indexes the file (with a byte index)' do
     ind = File.open(@file) do |io|
       Dat.byte_index(io)
     end
@@ -113,7 +102,7 @@ describe Dat do
     end
   end
 
-  xit 'makes hashes from strings of parameters' do
+  it 'makes hashes from strings of parameters' do
     string = "charge=3+
 mass_min=234.210000
 mass_max=1984.020000
