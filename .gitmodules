@@ -1,0 +1,3 @@
+[submodule "submodule/ms-testdata"]
+	path = submodule/ms-testdata
+	url = git://github.com/bahuvrihi/ms-testdata.git
