@@ -31,8 +31,9 @@ class Ms::Mascot::Dat::Query
   alias_method :Ions1, :ions1
 
   class << self
-    # returns a Query object from the dat query string with proper casting
-    def from_string(string, num)
+    # returns a Query object from the dat query string with proper casting. 
+    # 'num' should probably not be nil.
+    def from_string(string, num=nil)
       hash = Ms::Mascot::Dat.str_to_hash(string)
       vals = Ms::Mascot::Dat::QUERY_HASH_KEYS[1...-1].map  do |k|
         hash[k].send(CAST[k])

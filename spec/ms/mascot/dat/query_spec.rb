@@ -1,9 +1,12 @@
 require File.join(File.dirname(__FILE__), '../../../tap_spec_helper.rb') 
 require 'ms/mascot/dat/query'
 
-include Ms::Mascot
 
-describe Dat::Query do
+describe 'Dat::Query' do
+  include Ms::Mascot
+
+  Dat = Ms::Mascot.const_get('Dat')
+
   before do
     @string =<<END
 title=JP_PM3_0113_10ul_orb1%2e5369%2e5369%2e1%2edta
@@ -20,6 +23,7 @@ END
   end
 
   it 'can read and properly cast values of a query' do
+    num = 5  # requires a query number
     qr = Dat::Query.from_string( @string )
     {:title => "JP_PM3_0113_10ul_orb1.5369.5369.1.dta", :charge => 1, :mass_min => 109.230000, :mass_max => 360.12000, :int_min => 1.0, :int_max=> 135.3, :num_vals => 130, :num_used1=>-1}.each do |k,v|
       qr.send(k).must_equal v

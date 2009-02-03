@@ -2,18 +2,17 @@ require File.join(File.dirname(__FILE__), '../../tap_spec_helper.rb')
 require 'ms/mascot/dat'
 
 
-describe 'Dat usage' do
 
+@@file = '/home/jtprince/ms/data/090113_init/mini/F040565.dat'
+
+describe 'Dat usage' do
+  #include RequiresDatFile
   include Ms::Mascot
   Dat = Ms::Mascot.const_get('Dat')
-  
-  before do
-    @file = '/home/jtprince/ms/data/090113_init/mini/F040565.dat'
-  end
 
   it 'can access queries with each_query, query(num), or query' do
     query_class = Dat.const_get 'Query'
-    Dat.open(@file) do |obj|
+    Dat.open(@@file) do |obj|
 
       # each_query
       qrs = []  # for later spec
@@ -38,7 +37,7 @@ describe 'Dat usage' do
  
   it 'has methods to return sections' do
     # some of these are currently just Strings, but there they are.
-    Dat.open(@file) do |obj|
+    Dat.open(@@file) do |obj|
       %w(parameters masses unimod enzyme header summary decoy_summary peptides decoy_peptides proteins index).each do |meth|
         obj.must_respond_to meth.to_sym
       end
@@ -46,7 +45,7 @@ describe 'Dat usage' do
   end
 
   it 'just returns hashes for applicable sections' do
-    Dat.open(@file) do |obj|
+    Dat.open(@@file) do |obj|
       Dat::HASHES.each do |meth|
         hash = obj.send meth.to_sym
         hash.must_be_kind_of Hash
@@ -59,13 +58,12 @@ describe 'Dat usage' do
       obj.index['summary'].must_equal '495'
     end
   end
+end
 
-  ##############################################
-  # more private:
-  ##############################################
-  
+describe 'Dat tests' do
+ 
   it 'indexes the file (with a byte index)' do
-    ind = File.open(@file) do |io|
+    ind = File.open(@@file) do |io|
       Dat.byte_index(io)
     end
 
@@ -87,7 +85,7 @@ describe 'Dat usage' do
           ind[key]
         end
 
-      string = IO.read(@file, ind_ar.last, ind_ar.first)
+      string = IO.read(@@file, ind_ar.last, ind_ar.first)
       lines = string.split("\n")
       lines.first.must_equal first_last[key].first
       if key.is_a? Integer
