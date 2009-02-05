@@ -92,7 +92,11 @@ task :default => :spec
 
 desc 'Run specs.'
 Rake::TestTask.new(:spec) do |t|
+  t.libs = ['lib']
   t.test_files = Dir.glob( File.join('spec', ENV['pattern'] || '**/*_spec.rb') )
+  unless ENV['gems']
+    t.libs << 'submodule/ms-testdata/lib'
+  end
   t.verbose = true
   t.warning = true
 end
