@@ -1,12 +1,8 @@
-require File.join(File.dirname(__FILE__), '../../../tap_test_helper.rb') 
+require File.join(File.dirname(__FILE__), '../../../tap_spec_helper.rb') 
 require 'ms/mascot/dat/section'
 
-class SectionTest < Test::Unit::TestCase
+class SectionTest < MiniTest::Spec
   include Ms::Mascot::Dat
-  
-  #
-  # parse test
-  #
   
   # From sample mascot data F981122.dat
   SAMPLE_SECTION = %Q{
@@ -20,15 +16,15 @@ COM=Peptide Mass Fingerprint Example
 IATOL=
 }
 
-  def test_parse_parses_and_returns_new_instance
+  it 'parses and returns new instance' do
     p = Section.parse(SAMPLE_SECTION)
-    assert_equal({
+    p.data.must_equal({
       'LICENSE' => 'Licensed to: Matrix Science Internal use only - Frill, (4 processors).',
       'MP' => '',
       'NM' => '',
       'COM' => 'Peptide Mass Fingerprint Example',
       'IATOL' => ''
-    }, p.data)
+    })
   end
 
   # Put together from several dat files/sections all with the
@@ -54,9 +50,9 @@ q1_p1_terms=K,I:K,I:K,I
 "CASB_CAPHI"=24849.17,"Beta-casein precursor - Capra hircus (Goat)"
 }
 
-  def test_parse_correctly_parses_a_variety_of_parameters
+  it 'correctly parses a variety of parameters' do
     p = Section.parse(MISHMASH_SECTION)
-    assert_equal({
+    p.data.must_equal({
       "LICENSE" => "Licensed to: Matrix Science Internal use only - Frill, (4 processors).",
       "IATOL" => "",
       "A" => "71.037114",
@@ -72,44 +68,40 @@ q1_p1_terms=K,I:K,I:K,I
       "q1_p1_terms" => "K,I:K,I:K,I",
       "\"CASB_SHEEP\"" => "24859.19,\"Beta-casein precursor - Ovis aries (Sheep)\"",
       "\"CASB_CAPHI\"" => "24849.17,\"Beta-casein precursor - Capra hircus (Goat)\""
-    }, p.data)
+    })
   end
-  
-  #
-  # Section.section_name test
-  #
-  
-  def test_class_section_name_documentation
-    assert_equal "section", Ms::Mascot::Dat::Section.section_name
-  end
-  
-  class Subclass < Section
-  end
-  
-  def test_class_section_name_is_downcased_unnested_constant_name
-    assert_equal "subclass", Subclass.section_name
-  end
-  
-  #
-  # section_name test
-  #
-  
-  def test_section_name_is_class_section_name
-    assert_equal "section", Ms::Mascot::Dat::Section.new.section_name
-    assert_equal "subclass", Subclass.new.section_name
-  end
-  
-  #
-  # to_s test
-  #
-  
-  def test_to_s_formats_parameters_with_content_type_header
+
+  it 'formats parameters with content type header on to_s' do
     p = Section.new('key' => 'value')
-    assert_equal %Q{
+    p.to_s.must_equal %Q{
 
 Content-Type: application/x-Mascot; name="section"
 
 key=value
-}, p.to_s
+}
   end
+
+end
+
+
+# some tests on the section name
+class ClassSectionNameSpec < MiniTest::Spec
+  include Ms::Mascot::Dat
+
+  it 'gives downcased name' do
+    Ms::Mascot::Dat::Section.section_name.must_equal "section"
+  end
+
+  class Subclass < Section
+  end
+
+  it 'gives downcased unnested constant name for subclasses' do
+    Subclass.section_name.must_equal "subclass"
+  end
+
+  it 'section name is class section name' do
+    Ms::Mascot::Dat::Section.new.section_name.must_equal "section"
+    Subclass.new.section_name.must_equal "subclass"
+  end
+
 end

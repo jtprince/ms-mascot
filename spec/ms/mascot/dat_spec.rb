@@ -5,32 +5,32 @@ require 'ms/mascot/dat'
 
 @@file = '/home/jtprince/ms/data/090113_init/mini/F040565.dat'
 
-class DatUsageSpec < MTS
+class DatUsageSpec < MiniTest::Spec
   include Ms::Mascot
 
-  it 'can access queries with each_query, query(num), or query' do
-    query_class = Dat.const_get 'Query'
-    Dat.open(@@file) do |obj|
+#  it 'can access queries' do
+    #query_class = Dat.const_get 'Query'
+    #Dat.open(@@file) do |obj|
 
-      # each_query
-      qrs = []  # for later spec
-      obj.each_query do |query|
-        query.must_be_kind_of query_class
-        qrs << query
-      end
+      ## each_query
+      #qrs = []  # for later spec
+      #obj.each_query do |query|
+        #query.must_be_kind_of query_class
+        #qrs << query
+      #end
 
-      # query
-      obj.query(0).must_be_nil
-      obj.query(1).must_be_kind_of query_class
-      obj.query(2).wont_equal obj.query(1)
+      ## query
+      #obj.query(0).must_be_nil
+      #obj.query(1).must_be_kind_of query_class
+      #obj.query(2).wont_equal obj.query(1)
 
-      # queries
-      obj.queries.must_equal qrs
-      obj.queries((1..2).to_a).size.must_equal 2
-      obj.queries([0]).must_equal [nil]
-      obj.queries([5]).must_equal [nil]
-    end
-  end
+      ## queries
+      #obj.queries.must_equal qrs
+      #obj.queries((1..2).to_a).size.must_equal 2
+      #obj.queries([0]).must_equal [nil]
+      #obj.queries([5]).must_equal [nil]
+    #end
+  #end
 
 
   it 'has methods to return sections' do
@@ -58,7 +58,7 @@ class DatUsageSpec < MTS
   end
 end
 
-class DatTests < MTS
+#class DatTests < MiniTest::Spec
 
 #it 'indexes the file (with a byte index)' do
 #ind = File.open(@@file) do |io|

@@ -1,1 +1,1 @@
-require 'mascot/formats/dat/archive'
+require 'ms/mascot/dat/archive'
