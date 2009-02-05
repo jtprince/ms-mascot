@@ -33,30 +33,45 @@ class DatUsageSpec < MiniTest::Spec
   #end
 
 
-  it 'has methods to return sections' do
+  it 'returns sections' do
     # some of these are currently just Strings, but there they are.
     Dat.open(@@file) do |obj|
+      p obj.section_names
+      p obj.sections
+
+      obj.each do |section|
+        if section.respond_to? :section_name
+          p section.section_name 
+        else
+          puts 'string'
+        end
+      end
+      obj.each_query do |query|
+        #p query
+      end
+      #p obj.section('index').nqueries
+      #p obj.section('query1')
       %w(parameters masses unimod enzyme header summary decoy_summary peptides decoy_peptides proteins index).each do |meth|
-        obj.must_respond_to meth.to_sym
+        obj.section(meth).wont_be_nil
       end
     end
   end
 
-  it 'just returns hashes for applicable sections' do
-    Dat.open(@@file) do |obj|
-      Dat::HASHES.each do |meth|
-        hash = obj.send meth.to_sym
-        hash.must_be_kind_of Hash
-        hash.size.must_be :>=, 5
-      end
-      # just to make sure the content is there:
-      obj.parameters['TOLU'].must_equal 'ppm'
-      obj.header['date'].must_equal '1232579902'
-      obj.masses['C'].must_equal '103.009185'
-      obj.index['summary'].must_equal '495'
-    end
-  end
-end
+  #it 'just returns hashes for applicable sections' do
+    #Dat.open(@@file) do |obj|
+      #Dat::HASHES.each do |meth|
+        #hash = obj.send meth.to_sym
+        #hash.must_be_kind_of Hash
+        #hash.size.must_be :>=, 5
+      #end
+      ## just to make sure the content is there:
+      #obj.parameters['TOLU'].must_equal 'ppm'
+      #obj.header['date'].must_equal '1232579902'
+      #obj.masses['C'].must_equal '103.009185'
+      #obj.index['summary'].must_equal '495'
+    #end
+  #end
+#end
 
 #class DatTests < MiniTest::Spec
 
@@ -110,3 +125,5 @@ end
     #Dat.str_to_hash(string).must_equal exp
   #end
 
+
+end

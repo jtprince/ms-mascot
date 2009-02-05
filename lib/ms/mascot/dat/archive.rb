@@ -6,9 +6,10 @@ module Ms
       CONTENT_TYPE_CLASSES = {}
       
       # currently unimplemented: unimod enzyme taxonomy mixture quantitation
-      sections = %w{
+      typed_sections = %w{
         header index masses parameters peptides proteins summary
-      }.each do |name|
+      }
+      typed_sections.each do |name|
         CONTENT_TYPE_CLASSES[name] = "ms/mascot/dat/#{name}"
       end 
       
