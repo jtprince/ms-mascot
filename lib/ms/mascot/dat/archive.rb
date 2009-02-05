@@ -7,7 +7,7 @@ module Ms
       
       # currently unimplemented: unimod enzyme taxonomy mixture quantitation
       typed_sections = %w{
-        header index masses parameters peptides proteins summary
+        header index masses parameters peptides proteins summary query
       }
       typed_sections.each do |name|
         CONTENT_TYPE_CLASSES[name] = "ms/mascot/dat/#{name}"
@@ -59,6 +59,7 @@ module Ms
             end
             
             name = metadata[:name]
+            name = 'query' if name =~ /^query(\d+)$/
             case const = CONTENT_TYPE_CLASSES[name]
             when String
               require const
@@ -74,17 +75,34 @@ module Ms
         # A hash of metadata associated with this dat file.
         attr_reader :metadata
         
-        # An array of section names associated with each entry in self.
-        # Section names are determined dynamically when accessed through
-        # the section_name method.
-        attr_reader :section_names
-        
+        alias_method :each_section, :each
+
         def initialize(io=nil, io_index=nil)
           super(io)
           @metadata = parse_metadata(io)
-          @section_names = []
+          # keeps track of names accessed
+          @accessed_names = []
+
+          # seems like I have to reindex to get the index names. Is there
+          # another way?
+          self.reindex
         end
-        
+
+        # the names of the sections given in the index (in order)
+        def section_names
+          self.section('index').data.each_pair.sort_by {|p| p.last.to_i}.map {|p| p.first} << 'index'
+        end
+
+        def each_query(&block)
+          self.section('index').queries.each do |key|
+            block.call( self.section(key) )
+          end
+        end
+
+        def query(num)
+          self.section("query#{num}")
+        end
+
         # The boundary separating sections, typically '--gc0p4Jq0M2Yt08jU534c0p'.
         def boundary
           "--#{metadata[:boundary]}"
@@ -92,7 +110,7 @@ module Ms
         
         # Reindexes self.
         def reindex(&block)
-          @section_names.clear
+          @accessed_names.clear
           reindex_by_sep(boundary, 
             :entry_follows_sep => true, 
             :exclude_sep => true,
@@ -119,7 +137,9 @@ module Ms
         
         # Returns the entry for the named section.
         def section(name)
-          self[section_index(name)]
+          if ind = section_index(name)
+            self[ind]
+          end
         end
         
         # Returns the index of the named section.
@@ -134,12 +154,12 @@ module Ms
         # section names are parsed from the entry's Content-Type header.
         def section_name(index)
           resolve_sections if index < 0
-          @section_names[index] ||= parse_section_name(index)
+          @accessed_names[index] ||= parse_section_name(index)
         end
         
         # Resolves all sections.
         def resolve_sections
-          (@section_names.length).upto(length - 1) do |index| 
+          (@accessed_names.length).upto(length - 1) do |index| 
             section_name(index)
           end
         end

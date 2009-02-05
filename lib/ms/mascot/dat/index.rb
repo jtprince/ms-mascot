@@ -17,7 +17,7 @@ class Ms::Mascot::Dat::Index < Ms::Mascot::Dat::Section
 
   # returns all query sections
   def queries
-    data.keys.grep( /^query(\d+)$/o )
+    data.keys.grep( /^query(\d+)$/o ).sort
   end
 
 end

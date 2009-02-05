@@ -38,7 +38,7 @@ module Ms
             unless scanner.scan(CONTENT_TYPE_REGEXP)
               raise "unknown content type: #{content_type}"
             end
-            section_name = scanner[0]
+            section_name = scanner[1]
             
             # scan each pair.
             while key = scanner.scan(/[^=]+/)

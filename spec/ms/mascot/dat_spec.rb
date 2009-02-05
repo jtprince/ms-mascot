@@ -1,56 +1,41 @@
 require File.join(File.dirname(__FILE__), '../../tap_spec_helper.rb') 
 require 'ms/mascot/dat'
-
-
+require 'ms/mascot/dat/query'
 
 @@file = '/home/jtprince/ms/data/090113_init/mini/F040565.dat'
 
 class DatUsageSpec < MiniTest::Spec
   include Ms::Mascot
 
-#  it 'can access queries' do
-    #query_class = Dat.const_get 'Query'
-    #Dat.open(@@file) do |obj|
+  it 'gives direct access to queries' do
+    Dat.open(@@file) do |obj|
+      qrs = []  # for later spec
+      obj.each_query do |query|
+        query.must_be_kind_of Dat::Query
+        qrs << query
+      end
+      qrs.length.must_equal 4
 
-      ## each_query
-      #qrs = []  # for later spec
-      #obj.each_query do |query|
-        #query.must_be_kind_of query_class
-        #qrs << query
-      #end
+      qrs.each_with_index do |q,i|
+        q.index.must_equal( i + 1 )
+      end
 
-      ## query
-      #obj.query(0).must_be_nil
-      #obj.query(1).must_be_kind_of query_class
-      #obj.query(2).wont_equal obj.query(1)
+      # query
+      obj.query(0).must_be_nil
+      obj.query(1).must_be_kind_of Dat::Query
+      obj.query(2).wont_equal obj.query(1)
+    end
+  end
 
-      ## queries
-      #obj.queries.must_equal qrs
-      #obj.queries((1..2).to_a).size.must_equal 2
-      #obj.queries([0]).must_equal [nil]
-      #obj.queries([5]).must_equal [nil]
-    #end
-  #end
-
+  it 'lists section names' do
+    Dat.open(@@file) do |obj|
+      obj.section_names.must_equal ["parameters", "masses", "unimod", "enzyme", "header", "summary", "decoy_summary", "peptides", "decoy_peptides", "proteins", "query1", "query2", "query3", "query4", "index"]
+    end
+  end
 
   it 'returns sections' do
     # some of these are currently just Strings, but there they are.
     Dat.open(@@file) do |obj|
-      p obj.section_names
-      p obj.sections
-
-      obj.each do |section|
-        if section.respond_to? :section_name
-          p section.section_name 
-        else
-          puts 'string'
-        end
-      end
-      obj.each_query do |query|
-        #p query
-      end
-      #p obj.section('index').nqueries
-      #p obj.section('query1')
       %w(parameters masses unimod enzyme header summary decoy_summary peptides decoy_peptides proteins index).each do |meth|
         obj.section(meth).wont_be_nil
       end
