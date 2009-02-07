@@ -3,14 +3,20 @@ require 'external'
 module Ms
   module Mascot
     module Dat
+      
+      # A hash of (section_name, SectionClass) pairs mapping section names
+      # to section class.  Initially SectionClass may be a require path; if
+      # so the path is required and the class looked up like:
+      #
+      #   Ms::Mascot::Dat.const_get(section_name.capitalize)
+      #
+      # Such that 'header' is mapped to Ms::Mascot::Dat::Header.
       CONTENT_TYPE_CLASSES = {}
       
       # currently unimplemented: unimod enzyme taxonomy mixture quantitation
-      typed_sections = %w{
-        header index masses parameters peptides proteins summary query
-      }
-      typed_sections.each do |name|
-        CONTENT_TYPE_CLASSES[name] = "ms/mascot/dat/#{name}"
+      %w{header index masses parameters peptides proteins summary query
+      }.each do |section_name|
+        CONTENT_TYPE_CLASSES[section_name] = "ms/mascot/dat/#{section_name}"
       end 
       
       # Provides access to a Mascot dat file.
@@ -43,22 +49,33 @@ module Ms
             metadata
           end
           
-          # Parses a mascot-style content type declaration.  This method is
-          # very brittle, but works for all known dat files.
+          # Parses a mascot-style content type declaration.  This method uses
+          # a simple regexp and is very brittle, but it works for all known
+          # dat files.
           def parse_content_type(str)
             unless str =~ /^Content-Type: (.*?); name=\"(.*)\"/
               raise "unparseable content-type declaration: #{str}"
             end
             
-            {:content_type => $1, :name => $2}
+            {:content_type => $1, :section_name => $2}
           end
           
+          # Resolves a content type class from a hash of metadata like:
+          #
+          #   metadata = {
+          #     :content_type => 'application/x-Mascot',
+          #     :section_name => 'header'
+          #   }
+          #   Dat.content_type_class(metadata)   # => Ms::Mascot::Dat::Header
+          #
+          # Raises an error if the content type is not 'application/x-Mascot'
+          # or if the name is not registered in CONTENT_TYPE_CLASSES.
           def content_type_class(metadata)
             unless metadata[:content_type] == 'application/x-Mascot'
               raise "unknown content_type: #{metadata.inspect}"
             end
             
-            name = metadata[:name]
+            name = metadata[:section_name]
             name = 'query' if name =~ /^query(\d+)$/
             case const = CONTENT_TYPE_CLASSES[name]
             when String
@@ -170,7 +187,7 @@ module Ms
         def parse_section_name(index) # :nodoc:
           return nil unless index = io_index[index]
           io.pos = index[0] + 1
-          parse_content_type(io.readline)[:name]
+          parse_content_type(io.readline)[:section_name]
         end
       end
     end

@@ -30,7 +30,7 @@ class DatArchiveUtilsTest < MiniTest::Spec
   it 'parses content type' do
     parse_content_type('Content-Type: application/x-Mascot; name="unimod"').must_equal( {
       :content_type => 'application/x-Mascot',
-      :name => 'unimod'
+      :section_name => 'unimod'
     } )
   end
 end
