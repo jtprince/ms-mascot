@@ -2,9 +2,8 @@ require File.join(File.dirname(__FILE__), '../../../tap_spec_helper.rb')
 require 'ms/mascot/mgf/archive'
 require 'stringio'
 
-include Ms::Mascot::Mgf
-
-describe Archive do
+class MgfArchiveSpec < MiniTest::Spec
+  include Ms::Mascot::Mgf
   
   MGF_1 = %Q{BEGIN IONS
 TITLE=one
@@ -23,31 +22,39 @@ PEPMASS=3.1416
 END IONS
 }
 
-  it 'reindex' do
-    strio = StringIO.new(MGF_1 + MGF_2)
+  #
+  # describe reindex
+  #
+  
+  it 'must index each mgf entry in io' do
+    io = StringIO.new(MGF_1 + MGF_2)
     begin
-      a = Archive.new(strio)
+      a = Archive.new(io)
     
-      assert_equal 0, a.length
+      a.length.must_equal 0
       a.reindex
-      assert_equal 2, a.length
+      a.length.must_equal 2 
     
-      assert_equal MGF_1, a[0].to_s
-      assert_equal 321.571138, a[0].pepmass
+      a[0].to_s.must_equal MGF_1
+      a[0].pepmass.must_equal 321.571138
     
-      assert_equal MGF_2, a[1].to_s
+      a[1].to_s.must_equal MGF_2
     ensure
       a.close
     end
   end
   
-  it 'str_to_entry' do
+  #
+  # describe str_to_entry
+  #
+  
+  it 'must convert an mgf string into an Entry' do
     begin
       a = Archive.new
       e = a.str_to_entry(MGF_1)
       
-      assert_equal Entry, e.class
-      assert_equal 321.571138, e.pepmass
+      e.class.must_equal Entry
+      e.pepmass.must_equal 321.571138
     ensure
       a.close
     end

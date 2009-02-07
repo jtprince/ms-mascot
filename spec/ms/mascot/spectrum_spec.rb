@@ -9,13 +9,9 @@ require 'ms/mascot'
 # an expected series.
 #
 
-# don't like including this in the main object space, but it doesn't work
-# inside the describe!
-include Ms::Mascot
-
-describe Ms::Mascot do
-  # @TODO: for some reason the include doesn't really work for minitest/spec
-
+class SpectrumSpec < MiniTest::Spec
+  include Ms::Mascot
+  
   def assert_series_equal(series, expected, frag, delta_mass)
     a = expected[series]
     b = frag.series(series)
@@ -55,11 +51,11 @@ describe Ms::Mascot do
     series
   end
 
-  def identifiers
-    ['b', 'b++',  'y', 'y++',  'y*', 'y*++']
-  end
+  #
+  # describe Spectrum#new
+  #
   
-  it 'fragments_vs_mascot_APGFGDNR' do
+  it 'must generate %w{b b++ y y++ y* y*++} fragments like mascot (APGFGDNR)' do
     series = mascot_series %Q{
 #  	b  	b++  	b*  	b*++  	b0  	b0++  	Seq.  	y  	y++  	y*  	y*++  	y0  	y0++  	#
 1 	72.04 	36.53 	  	  	  	  	A 	  	  	  	  	  	  	8
@@ -72,17 +68,13 @@ describe Ms::Mascot do
 8 	  	  	  	  	  	  	R 	175.12 	88.06 	158.09 	79.55 	  	  	1}
 
     frag = Spectrum.new("APGFGDNR")
-    identifiers.each do |identifier|
+    %w{b b++ y y++ y* y*++}.each do |identifier|
       assert_series_equal(identifier, series, frag, FRAGMENT_TEST_MASS_UNCERTAINTY)
     end
   end
   
-  def identifiers2
-    ['a', 'b',  'c', 'x',  'y', 'z', 'Immon.', 'z+1', 'z+2']
-  end
-  
   # http://hsc-mascot.uchsc.edu/mascot/cgi/peptide_view.pl?file=../data/20080125/F006779.dat&query=6&hit=1&index=TGM1_HUMAN&px=1&section=5&ave_thresh=36
-  it 'fragments_vs_mascot_IVYVEEK' do
+  it 'must generate %w{a b c x y z Immon. z+1 z+2} fragments like mascot (IVYVEEK)' do
     series = mascot_series %Q{
 #  	Immon.  	a  	a0  	b  	b0  	c  	Seq.  	x  	y  	y0  	z  	z+1  	z+2  	#
 1 	86.10 	86.10 	  	114.09 	  	131.12 	I 	  	  	  	  	  	  	7
@@ -94,13 +86,13 @@ describe Ms::Mascot do
 7 	101.11 	  	  	  	  	  	K 	173.09 	147.11 	  	130.09 	131.09 	132.10 	1}
 
     frag = Spectrum.new("IVYVEEK")
-    identifiers2.each do |identifier|
+    %w{a b c x y z Immon. z+1 z+2}.each do |identifier|
       assert_series_equal(identifier, series, frag, FRAGMENT_TEST_MASS_UNCERTAINTY)
     end
   end
   
-    #http://hsc-mascot.uchsc.edu/mascot/cgi/peptide_view.pl?file=../data/20080125/F006779.dat&query=40&hit=1&index=TGM1_HUMAN&px=1&section=5&ave_thresh=36
-  it 'fragments_vs_mascot_RPDLPSGFDGWQVVDATPQETSSGIFCCGPCSVESIK' do
+  #http://hsc-mascot.uchsc.edu/mascot/cgi/peptide_view.pl?file=../data/20080125/F006779.dat&query=40&hit=1&index=TGM1_HUMAN&px=1&section=5&ave_thresh=36
+  it 'fmust generate %w{a b c x y z Immon. z+1 z+2} fragments like mascot (RPDLPSGFDGWQVVDATPQETSSGIFCCGPCSVESIK)' do
     series = mascot_series %Q{
 #  	Immon.  	a  	a*  	a0  	b  	b*  	b0  	c  	d  	d'  	Seq.  	x  	y  	y0  	z  	z+1  	z+2  	#
 1 	129.11 	129.11 	112.09 	  	157.11 	140.08 	  	174.13 	44.05 	  	R 	  	  	  	  	  	  	37
@@ -142,9 +134,8 @@ describe Ms::Mascot do
 37 	101.11 	  	  	  	  	  	  	  	  	  	K 	173.09 	147.11 	  	130.09 	131.09 	132.10 	1}
 
     frag = Spectrum.new("RPDLPSGFDGWQVVDATPQETSSGIFCCGPCSVESIK")
-    identifiers2.each do |identifier|
+    %w{a b c x y z Immon. z+1 z+2}.each do |identifier|
       assert_series_equal(identifier, series, frag, FRAGMENT_TEST_MASS_UNCERTAINTY)
     end
   end
-  
 end

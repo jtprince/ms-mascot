@@ -1,8 +1,7 @@
 require File.join(File.dirname(__FILE__), '../../tap_spec_helper.rb') 
 require 'ms/mascot/predict'
 
-
-describe Ms::Mascot::Predict do
+class PredictSpec < MiniTest::Spec
   acts_as_script_test
   acts_as_file_test
   

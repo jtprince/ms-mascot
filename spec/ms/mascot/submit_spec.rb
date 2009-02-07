@@ -2,11 +2,10 @@ require File.join(File.dirname(__FILE__), '../../tap_spec_helper.rb')
 require 'ms/mascot/submit'
 require 'tap/test/http_test'
 
-include Ms::Mascot
-
-describe Submit do
+class SubmitSpec < MiniTest::Spec
   acts_as_tap_test
   
+  include Ms::Mascot
   include Tap::Test::HttpTest
   
   def target

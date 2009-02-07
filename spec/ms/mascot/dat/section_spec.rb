@@ -4,6 +4,10 @@ require 'ms/mascot/dat/section'
 class SectionTest < MiniTest::Spec
   include Ms::Mascot::Dat
   
+  #
+  # describe Section#parse
+  #
+  
   # From sample mascot data F981122.dat
   SAMPLE_SECTION = %Q{
 
@@ -16,7 +20,7 @@ COM=Peptide Mass Fingerprint Example
 IATOL=
 }
 
-  it 'parses and returns new instance' do
+  it 'must parse and returns new instance' do
     p = Section.parse(SAMPLE_SECTION)
     p.data.must_equal({
       'LICENSE' => 'Licensed to: Matrix Science Internal use only - Frill, (4 processors).',
@@ -27,8 +31,7 @@ IATOL=
     })
   end
 
-  # Put together from several dat files/sections all with the
-  # parameters format.
+  # Put together from several dat files/sections all with the parameters format.
   MISHMASH_SECTION = %Q{
 
 Content-Type: application/x-Mascot; name="parameters"
@@ -50,7 +53,7 @@ q1_p1_terms=K,I:K,I:K,I
 "CASB_CAPHI"=24849.17,"Beta-casein precursor - Capra hircus (Goat)"
 }
 
-  it 'correctly parses a variety of parameters' do
+  it 'must correctly parse a variety of parameters' do
     p = Section.parse(MISHMASH_SECTION)
     p.data.must_equal({
       "LICENSE" => "Licensed to: Matrix Science Internal use only - Frill, (4 processors).",
@@ -70,8 +73,33 @@ q1_p1_terms=K,I:K,I:K,I
       "\"CASB_CAPHI\"" => "24849.17,\"Beta-casein precursor - Capra hircus (Goat)\""
     })
   end
+  
+  #
+  # describe Section#name
+  #
+  
+  class Subclass < Section
+  end
+  
+  it 'must give the downcased, unnested constant name' do
+    Section.section_name.must_equal "section"
+    Subclass.section_name.must_equal "subclass"
+  end
+  
+  #
+  # describe Section.name
+  #
+  
+  it 'must equal the class section name' do
+    Ms::Mascot::Dat::Section.new.section_name.must_equal "section"
+    Subclass.new.section_name.must_equal "subclass"
+  end
+  
+  #
+  # describe Section.to_s
+  #
 
-  it 'formats parameters with content type header on to_s' do
+  it 'must format parameters with content type header' do
     p = Section.new('key' => 'value')
     p.to_s.must_equal %Q{
 
@@ -80,28 +108,4 @@ Content-Type: application/x-Mascot; name="section"
 key=value
 }
   end
-
-end
-
-
-# some tests on the section name
-class ClassSectionNameSpec < MiniTest::Spec
-  include Ms::Mascot::Dat
-
-  it 'gives downcased name' do
-    Ms::Mascot::Dat::Section.section_name.must_equal "section"
-  end
-
-  class Subclass < Section
-  end
-
-  it 'gives downcased unnested constant name for subclasses' do
-    Subclass.section_name.must_equal "subclass"
-  end
-
-  it 'section name is class section name' do
-    Ms::Mascot::Dat::Section.new.section_name.must_equal "section"
-    Subclass.new.section_name.must_equal "subclass"
-  end
-
 end

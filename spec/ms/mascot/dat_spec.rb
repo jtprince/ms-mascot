@@ -2,14 +2,17 @@ require File.join(File.dirname(__FILE__), '../../tap_spec_helper.rb')
 require 'ms/mascot/dat'
 require 'ms/mascot/dat/query'
 
-
 class DatUsageSpec < MiniTest::Spec
   include Ms::Mascot
 
   before do
     @file = Ms::TESTDATA + '/mascot/dat/F040565.dat'
   end
-
+  
+  #
+  # describe Dat.query
+  #
+  
   it 'gives direct access to queries' do
     Dat.open(@file) do |obj|
       qrs = []  # for later spec
@@ -29,14 +32,22 @@ class DatUsageSpec < MiniTest::Spec
       obj.query(2).wont_equal obj.query(1)
     end
   end
-
+  
+  #
+  # describe Dat.section_names
+  #
+  
   it 'lists section names' do
     #p method_root
     Dat.open(@file) do |obj|
       obj.section_names.must_equal ["parameters", "masses", "unimod", "enzyme", "header", "summary", "decoy_summary", "peptides", "decoy_peptides", "proteins", "query1", "query2", "query3", "query4", "index"]
     end
   end
-
+  
+  #
+  # describe Dat.section
+  #
+  
   it 'returns sections' do
     # some of these are currently just Strings, but there they are.
     Dat.open(@file) do |obj|
@@ -45,7 +56,7 @@ class DatUsageSpec < MiniTest::Spec
       end
     end
   end
-
+  
   it 'returns hashes for applicable sections' do
     Dat.open(@file) do |obj|
       %w(parameters header masses index).each do |sec|
