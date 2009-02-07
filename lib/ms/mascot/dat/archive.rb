@@ -54,7 +54,7 @@ module Ms
           # dat files.
           def parse_content_type(str)
             unless str =~ /^Content-Type: (.*?); name=\"(.*)\"/
-              raise "unparseable content-type declaration: #{str}"
+              raise "unparseable content-type declaration: #{str.inspect}"
             end
             
             {:content_type => $1, :section_name => $2}
@@ -92,34 +92,12 @@ module Ms
         # A hash of metadata associated with this dat file.
         attr_reader :metadata
         
-        alias_method :each_section, :each
-
         def initialize(io=nil, io_index=nil)
           super(io)
           @metadata = parse_metadata(io)
-          # keeps track of names accessed
-          @accessed_names = []
-
-          # seems like I have to reindex to get the index names. Is there
-          # another way?
-          self.reindex
+          @section_names = []
         end
-
-        # the names of the sections given in the index (in order)
-        def section_names
-          self.section('index').data.each_pair.sort_by {|p| p.last.to_i}.map {|p| p.first} << 'index'
-        end
-
-        def each_query(&block)
-          self.section('index').queries.each do |key|
-            block.call( self.section(key) )
-          end
-        end
-
-        def query(num)
-          self.section("query#{num}")
-        end
-
+        
         # The boundary separating sections, typically '--gc0p4Jq0M2Yt08jU534c0p'.
         def boundary
           "--#{metadata[:boundary]}"
@@ -127,21 +105,21 @@ module Ms
         
         # Reindexes self.
         def reindex(&block)
-          @accessed_names.clear
+          @section_names.clear
           reindex_by_sep(boundary, 
             :entry_follows_sep => true, 
             :exclude_sep => true,
           &block)
-          
+
           # remove the first and last entries, which contain
           # the metadata and indicate the end of the multipart 
           # form data.
           io_index.shift
           io_index.pop
-           
+
           self
         end
-        
+
         # Converts str into an entry according to the content type header
         # which should be present at the start of the string.
         def str_to_entry(str)
@@ -152,13 +130,22 @@ module Ms
           end
         end
         
-        # Returns the entry for the named section.
-        def section(name)
-          if ind = section_index(name)
-            self[ind]
-          end
+        # The section names corresponding to each entry in self.
+        #
+        # Normally section names are lazily parsed from the Content-Type header
+        # of an entry as needed.  If resolve is true, all section names are
+        # parsed and then returned; otherwise section_names may return a
+        # partially-filled array.
+        def section_names(resolve=true)
+          resolve_sections if resolve
+          @section_names
         end
         
+        # Returns the entry for the named section.
+        def section(name)
+          self[section_index(name)]
+        end
+
         # Returns the index of the named section.
         def section_index(name)
           0.upto(length - 1) do |index|
@@ -166,22 +153,34 @@ module Ms
           end
           nil
         end
-        
-        # Returns the section name for the entry at index.  Undetermined
-        # section names are parsed from the entry's Content-Type header.
+
+        # Returns the section name for the entry at index.
         def section_name(index)
+          # all sections must be resolved for negative indicies to
+          # work correctly (since otherwise @section_names may not
+          # have the same length as self)
           resolve_sections if index < 0
-          @accessed_names[index] ||= parse_section_name(index)
+          @section_names[index] ||= parse_section_name(index)
         end
         
-        # Resolves all sections.
-        def resolve_sections
-          (@accessed_names.length).upto(length - 1) do |index| 
+        def each_query(&block)
+          section('index').queries.each do |key|
+            block.call( self.section(key) )
+          end
+        end
+
+        def query(num)
+          section("query#{num}")
+        end
+
+        private
+        
+        # resolves each section
+        def resolve_sections # :nodoc:
+          (@section_names.length).upto(length - 1) do |index| 
             section_name(index)
           end
         end
-        
-        private
         
         # helper to go to the entry at index and parse the section name
         def parse_section_name(index) # :nodoc:
