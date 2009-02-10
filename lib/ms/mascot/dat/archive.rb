@@ -170,7 +170,11 @@ module Ms
         end
 
         def query(num)
-          section("query#{num}")
+          if si = section_index("query#{num}")
+            self[si]
+          else
+            nil
+          end
         end
 
         private
