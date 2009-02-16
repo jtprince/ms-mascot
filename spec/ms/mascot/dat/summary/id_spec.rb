@@ -15,8 +15,12 @@ class IdWithDatFile < MiniTest::Spec
       :seq => 'GYASPDLSK',
       :res_before => 'R',
       :res_after => 'L',
+      :score => 22.56,
     }
-    
+    pep[:score].must_equal '22.56'
+    pep.score must_equal 22.56
+    pep.calc_mr.must_equal 936.455246
+    pep[:calc_mr].must_equal '936.455246'
   end
   
 end

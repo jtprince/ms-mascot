@@ -6,7 +6,8 @@ module Ms
       class Summary
         class Id < Ms::Mascot::Dat::Summary
 
-          PEPTIDE_ATTS = %w(ui0 calc_mr delta start end num_match seq rank ui8 ui9 ui10 ui11 ui12 ui13 ui14 res_before res_after).map {|v| v.to_sym }
+          PEPTIDE_ATTS = %w(ui0 calc_mr delta start end num_match seq rank ui8 score ui11 ui12 ui13 ui14 ui15 res_before res_after).map {|v| v.to_sym }
+          CASTING = {:calc_mr => 'to_f', :delta => 'to_f', :start => 'to_i', :end => 'to_i', :num_match => 'to_i', :rank => 'to_i', :score => 'to_f'}
           
           Peptide = Struct.new(*PEPTIDE_ATTS)
 
@@ -25,10 +26,13 @@ module Ms
                   obj[k.to_sym] = v
                 end
               end
-
-              # floats
-
             end
+            PEPTIDE_ATTS.each do |pep_att|
+              if CASTING.key? pep_att.to_sym
+                class_eval "def #{pep_att}() ; self[:#{pep_att}].#{CASTING[pep_att.to_sym]} end"
+              end
+            end
+
           end
         end
       end

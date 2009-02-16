@@ -92,6 +92,8 @@ task :default => :spec
 
 desc 'Run specs.'
 Rake::TestTask.new(:spec) do |t|
+  # can specify SPEC=<file>_spec.rb or TEST=<file>_spec.rb
+  ENV['TEST'] = ENV['SPEC'] if ENV['SPEC']  
   t.libs = ['lib']
   t.test_files = Dir.glob( File.join('spec', ENV['pattern'] || '**/*_spec.rb') )
   unless ENV['gems']

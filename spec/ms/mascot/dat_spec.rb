@@ -71,6 +71,19 @@ class DatUsageSpec < MiniTest::Spec
       obj.section('index').data['summary'].must_equal '495'
     end
   end
+
+  # high level spec
+  it 'filters hits and returns an mgf file' do
+    Dat.open(@file) do |obj|
+      low_hits = obj.summary.peptide_hits.select do |hit|
+        hit.score < 20
+      end
+      scan_nums = low_hits.map do |hit|
+        hit.scan_num
+      end
+      query = scan_nums.map {|sn| obj.to_mgf(sn) }
+    end
+  end
 end
 
 
