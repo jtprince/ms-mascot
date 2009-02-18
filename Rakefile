@@ -92,6 +92,7 @@ Rake::TestTask.new(:spec) do |t|
   t.test_files = Dir.glob( File.join('spec', ENV['pattern'] || '**/*_spec.rb') )
   unless ENV['gems']
     t.libs << 'submodule/ms-testdata/lib'
+    t.libs << 'submodule/ms-in_silico/lib'
   end
   t.verbose = true
   t.warning = true
