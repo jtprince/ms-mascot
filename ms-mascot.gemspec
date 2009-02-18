@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.add_dependency("mspire", ">= 0.5.0")
   s.add_dependency("ms-in_silico", ">= 0.2.0")
   s.add_development_dependency("ms-testdata", ">= 0.0.1")
+  s.rdoc_options.concat %W{--main README -S -N --title Ms-Mascot}
   
   # list extra rdoc files like README here.
   s.extra_rdoc_files = %W{
