@@ -47,7 +47,7 @@ END IONS}
   # describe Entry#new 
   #
 
-  it 'must initialize a defualt entry' do
+  it 'must initialize a default entry' do
     e = Entry.new
     e.headers.must_equal({})
     e.charge.must_equal nil
