@@ -61,33 +61,15 @@ module Ms
         end
       end
       
-      # Infers a default path for the output mgf file from the sequence; the 
-      # path is the sequence if the sequence is less than 10 characters,
-      # otherwise it's like: "<first five>_<last five>.mgf"
-      #
-      def default_path(sequence)
-        sequence = "#{sequence[0,5]}_#{sequence[-5,5]}" if sequence.length > 10
-        "#{sequence}.mgf"
-      end
-      
-      def process(sequence, target=nil)
+      def process(sequence)
         sequence = sequence.gsub(/\s/, "")
         
         @entries = []
         digest.execute(sequence)
         
-        # prepare and dump the predicted spectra
-        # to the target path.
-        target = default_path(sequence) if target == nil
-        prepare(target)
-        File.open(target, "wb") do |file|
-          @entries.each do |entry|
-            entry.dump(file, config)
-            file.puts 
-          end
-        end
-        
-        target
+        @entries.collect do |entry|
+          entry.dump("", config)
+        end.join("\n")
       end
     end 
   end

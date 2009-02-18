@@ -2,31 +2,24 @@ require File.join(File.dirname(__FILE__), '../../tap_spec_helper.rb')
 require 'ms/mascot/predict'
 
 class PredictSpec < MiniTest::Spec
-  acts_as_script_test
-  acts_as_file_test
+  acts_as_tap_test
+  include Ms::Mascot
   
-  def test_predict_documentation
-    script_test(File.dirname(__FILE__) +  "../../../../") do |cmd|
-      target = method_root.filepath(:output, 'target.mgf')
-      
-      cmd.check "documentation", %Q{
-% rap predict MAEELVLERCDLELETNGRDHHTADLCREKLVVRRGQPFWLTLHFEGRNYEASVDSLTFS "#{target}"
-  I[:...:]             digest MAEELVLERCD... to 15 peptides
-  I[:...:]           fragment MAEELVLER
-  I[:...:]           fragment MAEELVLERCDLELETNGR
-  I[:...:]           fragment CDLELETNGR
-  I[:...:]           fragment CDLELETNGRDHHTADLCR
-  I[:...:]           fragment DHHTADLCR
-  I[:...:]           fragment DHHTADLCREK
-  I[:...:]           fragment EKLVVR
-  I[:...:]           fragment LVVR
-  I[:...:]           fragment LVVRR
-  I[:...:]           fragment RGQPFWLTLHFEGR
-  I[:...:]           fragment GQPFWLTLHFEGR
-  I[:...:]           fragment GQPFWLTLHFEGRNYEASVDSLTFS
-  I[:...:]           fragment NYEASVDSLTFS}
+  attr_accessor :predict
   
-      assert_files { [target] }
+  before do
+    super
+    @predict = Predict.new
+  end
+  
+  #
+  # describe process
+  #
+  
+  it "digests and fragments the sequence and returns the mgf" do
+    with_config :quiet => true do
+      result = predict.process('MAEELVLERCDLELETNGRDHHTADLCREKLVVRRGQPFWLTLHFEGRNYEASVDSLTFS')
+      result.must_equal File.read(ctr['target.mgf'])
     end
   end
 end
