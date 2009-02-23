@@ -73,7 +73,7 @@ class DatUsageSpec < MiniTest::Spec
   end
 
   # high level spec
-  it 'filters hits and returns an mgf file' do
+  xit 'filters hits and returns an mgf file' do
     Dat.open(@file) do |obj|
       low_hits = obj.summary.peptide_hits.select do |hit|
         hit.score < 20
