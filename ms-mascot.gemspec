@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.rubyforge_project = "mspire"
   s.has_rdoc = true
   s.add_dependency("tap", ">= 0.12")
-  s.add_dependency("tap-http", ">= 0.2.0")
+  s.add_dependency("tap-http", ">= 0.3.2")
   s.add_dependency("external", ">= 0.3.0")
   s.add_dependency("mspire", ">= 0.5.0")
   s.add_dependency("ms-in_silico", ">= 0.2.0")
