@@ -4,13 +4,13 @@ module Ms
   module Mascot
     # :startdoc::manifest formats an fragment spectrum as mgf
     #
-    # Formats the data produced by an Ms::Mascot::Fragment task as mgf. The
+    # Formats the data produced by an Ms::Mascot::Fragment task as an mgf. The
     # configurations specify various details of the dump, including the
     # precision and default headers.
     #
-    #   % rap fragment TVQQEL --:s mgf
+    #   % rap fragment TVQQEL --:s format_mgf
     #
-    # (be sure to use the splat option on the join)
+    # (note: be sure to use the splat option on the join)
     #
     class FormatMgf < Tap::Task
       
@@ -27,7 +27,7 @@ module Ms
       # to Mgf::Entry header strings.
       HEADER_MAP = {:parent_ion_mass => 'PEPMASS'}
       
-      def process(data, headers={})
+      def process(data, headers)
         lines = []
         lines << prefix if prefix
         
