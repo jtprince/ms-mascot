@@ -44,6 +44,21 @@ module Ms
     #
     # Spectrum calculates peptide mass using the masses in mass_map, 
     # ie the rounded residue masses.
+    #
+    # === Mascot-Specific Series Notation
+    #
+    # Mascot::Spectrum adds support for a few mascot-specific notations.
+    #
+    #   Notation     Translation    Example
+    #   series+<n>   series + Hn    a++, y0++
+    #   series*      series - NH3   y*
+    #   series0      series - H2O   a0
+    #   Immon.       immonium       Immon.
+    #
+    # It should be noted that Mascot applies unknown masks to these values;
+    # when using these types of series, Spectrum will often predict peaks
+    # that do not appear in a Mascot search result.
+    #
     class Spectrum < InSilico::Spectrum
       Element = Constants::Libraries::Element
       
@@ -171,11 +186,11 @@ module Ms
       #
       def handle_unknown_series(s)
         case s
-        when /^([\w\+\-]+)+(\d+)$/
+        when /^([abcxyYz][\+\-]+)+(\d+)$/
           self.series("#{$1} +H#{$2.to_i}")
-        when /^(\w+)\*(\+*-*)$/
+        when /^([abcxyYz])\*(\+*-*)$/
           self.series("#{$1}#{$2} -NH3")
-        when /^(\w+)0(\+*-*)$/
+        when /^([abcxyYz])0(\+*-*)$/
           self.series("#{$1}#{$2} -H2O")
         when /^Immon\.(.*)$/
           self.series("immonium#{$1}")
