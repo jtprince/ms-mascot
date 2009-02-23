@@ -78,6 +78,16 @@ module Ms
        "Connection"=>"keep-alive"
       }
       
+      # Matches a successful search response.  After the match:
+      #
+      #  $1:: the result file
+      SUCCESS_REGEXP = /<A HREF="\.\.\/cgi\/master_results\.pl\?file=(.*?)">Click here to see Search Report<\/A>/
+      
+      # Matches a failure response.  After the match:
+      #
+      #  $1:: the failure message
+      FAILURE_REGEXP = /<BR>(.*)/m
+      
       config :uri, DEFAULT_URI                           # The uri of the mascot search site
       config :headers, DEFAULT_HEADERS, &c.hash          # a hash of request headers
       config :params, DEFAULT_PARAMS, &c.hash            # a hash of query parameters
@@ -94,13 +104,28 @@ module Ms
         end
         
         # set filename for upload
-        file = request[:params]['FILE']
+        file = request[:params]['FILE'] ||= {}
         file['Filename'] = mgf_file
         file['Content-Type'] = 'application/octet-stream'
         file.delete('Content')
         
         # submit request
-        super(request)
+        parse_response_body super(request)
+      end
+      
+      # Processes the response body.  Returns the result file if the body
+      # indicates a success, or nil if the body indicates a failure.
+      def parse_response_body(body)
+        case body
+        when SUCCESS_REGEXP
+          log :success, $1
+          $1
+        when FAILURE_REGEXP 
+          log :failure, $1.gsub("<BR>", "\n")
+          nil
+        else 
+          raise "unparseable response: #{body}"
+        end
       end
     end
   end
