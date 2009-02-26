@@ -40,7 +40,7 @@ q2_p3_terms=R,-
     hit.protein_maps.length.must_equal 2
     
     protein_map = hit.protein_maps[0]
-    protein_map.id.must_equal '"Y1319_MYCTU"'
+    protein_map.id.must_equal 'Y1319_MYCTU'
     protein_map.peptide_end.must_equal 535
     protein_map.cterm.must_equal '-'
     
@@ -71,7 +71,7 @@ q2_p3_terms=R,-
     
     hit = queries[2][2]
     hit.sequence.must_equal "LAVTP"
-    hit.protein_maps[0].id.must_equal '"RLPA_RICCN"'
+    hit.protein_maps[0].id.must_equal 'RLPA_RICCN'
   end
   
   it "does not resolve all peptide hits unless specified" do
@@ -90,7 +90,7 @@ q2_p3_terms=R,-
     hit = hits[3]
     hit.sequence.must_equal "LAVVV"
     hit.delta_mass.must_equal -0.088254
-    hit.protein_maps[0].id.must_equal '"DYNA_NEUCR"'
+    hit.protein_maps[0].id.must_equal 'DYNA_NEUCR'
   end
   
   it "returns an empty array when there are no hits for the query" do
@@ -109,7 +109,7 @@ q2_p3_terms=R,-
     hit = peptides.peptide_hit(2,1)
     hit.sequence.must_equal 'LAVPT'
     hit.score.must_equal 3.87
-    hit.protein_maps[0].id.must_equal '"Y1319_MYCTU"'
+    hit.protein_maps[0].id.must_equal 'Y1319_MYCTU'
   end
   
   it "returns a nil when there are no hits for the query" do

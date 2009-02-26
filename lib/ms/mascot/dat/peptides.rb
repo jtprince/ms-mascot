@@ -30,7 +30,7 @@ module Ms::Mascot::Dat
   # specific query data.
   class Peptides < Ms::Mascot::Dat::Section
     
-    # === Peptide
+    # === PeptideHit
     #
     # Represents peptide hit data, infered by inspection of the MS/MS sample
     # results, esp {F981123.dat}[http://www.matrixscience.com/cgi/peptide_view.pl?file=../data/F981123.dat&query=2&hit=1&index=&px=1&section=5&ave_thresh=38].
@@ -69,7 +69,7 @@ module Ms::Mascot::Dat
     #   Number of fragment ion matches
     #   Experimental charge
     #
-    Peptide = Struct.new(
+    PeptideHit = Struct.new(
       :n_missed_cleavages,
       :peptide_mass,
       :delta_mass,
@@ -141,12 +141,16 @@ module Ms::Mascot::Dat
         # parse protein_map data
         protein_maps = protein_maps.zip(terms).collect do |map_data, terms|
           data = map_data.split(":") + terms.split(',')
+          
+          # removes quotes from protein id
+          data[0] = data[0][1...-1]
+          
           ProteinMapIntIndicies.each {|index| data[index] = data[index].to_i }
           ProteinMap.new(*data)
         end
         
         peptide_data << protein_maps
-        Peptide.new(*peptide_data)
+        PeptideHit.new(*peptide_data)
       end
     end
     
