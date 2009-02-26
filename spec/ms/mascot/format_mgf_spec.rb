@@ -1,7 +1,7 @@
 require File.join(File.dirname(__FILE__), '../../tap_spec_helper.rb') 
 require 'ms/mascot/format_mgf'
 
-class Ms::Mascot::FormatMgfTest < MiniTest::Spec
+class Ms::Mascot::FormatMgfSpec < MiniTest::Spec
   acts_as_tap_test 
   
   #

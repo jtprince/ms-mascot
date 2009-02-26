@@ -1,7 +1,7 @@
 require File.join(File.dirname(__FILE__), '../../../tap_spec_helper.rb') 
 require 'ms/mascot/dat/query'
 
-class QueryTest < MiniTest::Spec
+class QuerySpec < MiniTest::Spec
   include Ms::Mascot::Dat
   
   # An abbreviated query section from F981122.dat
