@@ -185,14 +185,14 @@ module Ms::Mascot::Dat
     # exists.
     def peptide_hit(query, hit=1)
       key = "q#{query}_p#{hit}"
-      return nil unless @data.has_key?(key)
+      return nil unless data.has_key?(key)
       
       hits = @queries[query] ||= []
       if existing_hit = hits[hit]
         return existing_hit
       end
       
-      if parsed_hit = Peptides.parse_peptide_hit(@data[key], @data["#{key}_terms"])
+      if parsed_hit = Peptides.parse_peptide_hit(data[key], data["#{key}_terms"])
         hits[hit] = parsed_hit
         return parsed_hit
       end
