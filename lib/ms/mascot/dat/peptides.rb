@@ -20,13 +20,13 @@ module Ms::Mascot::Dat
   # === Interpretation
   #
   # Deciphering the peptide information requires some cross-referencing with
-  # online results.  Noting that a single query can match multiple peptides:
+  # online results.  Note that a single query can match multiple peptides.
   #
-  #   qN_pN=-1                         # no matches
+  #   qN_pM=-1                         # no matches
   #   qN_pM=peptide;protein_maps       # query N peptide hit M
   #   qN_pM_terms=A,B:C,D              # n and c-termini residues for each protein match
   #
-  # See the Peptide and ProteinMap documentation for interpretation of the
+  # See the Peptide and ProteinMap structures for interpretation of the
   # specific query data.
   class Peptides < Ms::Mascot::Dat::Section
     
@@ -75,7 +75,7 @@ module Ms::Mascot::Dat
       :delta_mass,
       :unknown3,
       :sequence,
-      :unknown4,
+      :unknown5,
       :modifications,
       :score,
       :unknown8,
@@ -84,11 +84,11 @@ module Ms::Mascot::Dat
       :protein_maps
     )
     
-    # Indicies of Peptide terms that will be cast to floats.
-    PeptideFloatIndicies = [1,2,7]
+    # Indicies of PeptideHit terms that will be cast to floats.
+    PeptideHitFloatIndicies = [1,2,7]
     
-    # Indicies of Peptide terms that will be cast to integers.
-    PeptideIntIndicies = [0,3,5,9,10]
+    # Indicies of PeptideHit terms that will be cast to integers.
+    PeptideHitIntIndicies = [0,3,5,9,10]
     
     # === ProteinMap
     #
@@ -130,11 +130,11 @@ module Ms::Mascot::Dat
         # parse peptide data
         peptide_data = peptide_data.split(",")
         
-        PeptideFloatIndicies.each do |index|
+        PeptideHitFloatIndicies.each do |index|
           peptide_data[index] = peptide_data[index].to_f
         end
         
-        PeptideIntIndicies.each do |index|
+        PeptideHitIntIndicies.each do |index|
           peptide_data[index] = peptide_data[index].to_i
         end
 

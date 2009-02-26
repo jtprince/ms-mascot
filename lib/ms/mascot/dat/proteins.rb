@@ -10,8 +10,8 @@ module Ms::Mascot::Dat
   #   "Y986_MYCTU"=27356.31,"Hypothetical ABC transporter ATP-binding protein Rv0986/MT1014 - Mycobacterium tuberculosis"
   #   "Y5G0_ENCCU"=33509.30,"Hypothetical protein ECU05_1600/ECU11_0130 - Encephalitozoon cuniculi"
   #
-  # Proteins is a standard Section and simply defines methods for convenient
-  # access.  See Section for parsing details.
+  # Proteins is (almost) a standard Section and defines methods for convenient
+  # access.
   class Proteins < Section
     
     # === Protein
