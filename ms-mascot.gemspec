@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "ms-mascot"
-  s.version = "0.2.0"
+  s.version = "0.2.1"
   s.authors = ["Simon Chiang", "John Prince"]
   s.email = "simon.a.chiang@gmail.com"
   s.homepage = "http://mspire.rubyforge.org/projects/ms-mascot/"
