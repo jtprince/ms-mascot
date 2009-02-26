@@ -29,6 +29,9 @@ module Ms::Mascot::Dat
       :description
     )
     
+    # A format string used to format parameters as a string.
+    TO_S_FORMAT = "\"%s\"=%s\n"
+    
     class << self
       
       # Parses a new instance from str.  Special parsing is required to quickly

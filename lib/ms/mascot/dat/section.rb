@@ -82,7 +82,7 @@ module Ms
 
 Content-Type: application/x-Mascot; name="#{section_name}"
 
-#{data.to_a.collect {|entry| TO_S_FORMAT % entry}.join}}
+#{data.to_a.collect {|entry| self.class::TO_S_FORMAT % entry}.join}}
         end
       end
     end

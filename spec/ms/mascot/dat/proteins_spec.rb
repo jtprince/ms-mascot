@@ -38,4 +38,12 @@ Content-Type: application/x-Mascot; name="proteins"
     protein.mass.must_equal 27356.31
     protein.description.must_equal "Hypothetical ABC transporter ATP-binding protein Rv0986/MT1014 - Mycobacterium tuberculosis"
   end
+  
+  #
+  # describe to_s
+  #
+  
+  it "properly formats proteins section data" do
+    proteins.to_s.must_match %r{"ZN711_HUMAN"=87153.77}
+  end
 end
