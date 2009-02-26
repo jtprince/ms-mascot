@@ -1,24 +1,25 @@
 require 'ms/mascot/dat/section'
 
-# Query is a generic section for all queryN sections.  Query contains query
-# data that has different meaning depending on the type of search performed.
-# Here is data from an MS/MS search:
-#
-#   Content-Type: application/x-Mascot; name="query60"
-#   
-#   charge=3+
-#   mass_min=50.175000
-#   mass_max=1998.960000
-#   int_min=0.0364
-#   int_max=7366
-#   num_vals=3411
-#   num_used1=-1
-#   Ions1=129.098825:384.8,187.070000:461.5...
-#   ...
-#
-# Query is a standard Section and simply defines methods for convenient
-# access.  See Section for parsing details.
 module Ms::Mascot::Dat
+  
+  # Query is a generic section for all queryN sections.  Query contains query
+  # data that has different meaning depending on the type of search performed.
+  # Here is data from an MS/MS search:
+  #
+  #   Content-Type: application/x-Mascot; name="query60"
+  #   
+  #   charge=3+
+  #   mass_min=50.175000
+  #   mass_max=1998.960000
+  #   int_min=0.0364
+  #   int_max=7366
+  #   num_vals=3411
+  #   num_used1=-1
+  #   Ions1=129.098825:384.8,187.070000:461.5...
+  #   ...
+  #
+  # Query is a standard Section and simply defines methods for convenient
+  # access.  See Section for parsing details.
   class Query < Ms::Mascot::Dat::Section
   
     class << self
