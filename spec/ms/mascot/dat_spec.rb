@@ -57,6 +57,10 @@ class DatUsageSpec < MiniTest::Spec
     end
   end
   
+  #
+  # describe Dat
+  #
+  
   it 'returns hashes for applicable sections' do
     Dat.open(@file) do |obj|
       %w(parameters header masses index).each do |sec|

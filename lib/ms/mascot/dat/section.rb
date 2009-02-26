@@ -42,7 +42,7 @@ module Ms
             
             # scan each pair.
             while key = scanner.scan(/[^=]+/)
-              scanner.skip(/=/)
+              scanner.skip(/\=/)
               params[key] = scanner.scan(/[^\n]*/)
               scanner.skip(/\n/)
             end
