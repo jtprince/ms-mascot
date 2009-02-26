@@ -35,7 +35,7 @@ module Ms::Mascot::Dat
     # Represents peptide hit data, infered by inspection of the MS/MS sample
     # results, esp {F981123.dat}[http://www.matrixscience.com/cgi/peptide_view.pl?file=../data/F981123.dat&query=2&hit=1&index=&px=1&section=5&ave_thresh=38].
     #   
-    #   # 0,499.300598,-0.051862,2,LAVPT,10,0000000,3.87,0001002000000000000,0,0
+    #   # str: 0,499.300598,-0.051862,2,LAVPT,10,0000000,3.87,0001002000000000000,0,0
     # 
     #   index  example              meaning
     #   0      0                    n Missed Cleavages
@@ -95,7 +95,8 @@ module Ms::Mascot::Dat
     # Represents a protein map, indicating which proteins contain the
     # identified peptide.  There may be many for a given peptide hit
     #
-    #   # "Y1319_MYCTU":0:531:535:1,"Y1353_MYCBO":0:531:535:1
+    #   # str:   "Y1319_MYCTU":0:531:535:1,"Y1353_MYCBO":0:531:535:1
+    #   # terms: R,-:R,-
     #
     #   index  example              meaning
     #   0      "Y1319_MYCTU"        matching protein id
@@ -103,6 +104,8 @@ module Ms::Mascot::Dat
     #   2      531                  peptide start index
     #   3      535                  peptide end index
     #   4      1
+    #   5      R                    nterm
+    #   6      -                    cterm
     #
     ProteinMap = Struct.new(
       :id,

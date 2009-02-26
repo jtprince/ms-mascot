@@ -5,7 +5,7 @@ class PeptidesUtilsSpec < MiniTest::Spec
   include Ms::Mascot::Dat::Peptides::Utils
   
   #
-  # describe arse_peptide_hit
+  # describe parse_peptide_hit
   #
   
   it "parses a PeptideHit from input data" do
