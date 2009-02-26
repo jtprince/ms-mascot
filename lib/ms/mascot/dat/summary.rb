@@ -55,19 +55,23 @@ module Ms::Mascot::Dat
     # Represents protein hit data, infered by inspection of the MS/MS sample
     # results, esp {F981123.dat}[http://www.matrixscience.com/cgi/peptide_view.pl?file=../data/F981123.dat&query=2&hit=1&index=&px=1&section=5&ave_thresh=38].
     #   
-    #   # CH60_HUMAN,1.40e+03,0.48,61016.38
+    #   # str:  CH60_HUMAN,1.40e+03,0.48,61016.38
+    #   # desc: 60 kDa heat shock protein...
     # 
     #   index  example              meaning
     #   0      CH60_HUMAN           id
     #   1      1.40e+03             
     #   2      0.48                 
     #   3      61016.38             mass
+    #   4      60 kDa heat...       text
     #
     ProteinHit = Struct.new(
       :id,
       :unknown1,
       :unknown2,
-      :mass
+      :mass,
+      :text,
+      :query_hits
     )
     
     # Indicies of ProteinHit terms that will be cast to floats.
@@ -78,12 +82,13 @@ module Ms::Mascot::Dat
     # Represents query data, infered by inspection of the MS/MS sample
     # results, esp {F981123.dat}[http://www.matrixscience.com/cgi/peptide_view.pl?file=../data/F981123.dat&query=2&hit=1&index=&px=1&section=5&ave_thresh=38].
     #   
-    #   # 0,832.382767,-0.032939,302,309,6.00,APGFGDNR,16,0000000000,45.35,1,0000002000000000000,0,0,3481.990000
-    #   
+    #   # str:   0,832.382767,-0.032939,302,309,6.00,APGFGDNR,16,0000000000,45.35,1,0000002000000000000,0,0,3481.990000
+    #   # terms: K,R
+    #
     #   index  example              meaning
     #   0      0                    n Missed Cleavages
-    #   1      499.300598           Monoisotopic mass of neutral peptide Mr(calc)
-    #   2      -0.051862            actual - theoretical delta mass
+    #   1      832.382767           Monoisotopic mass of neutral peptide Mr(calc)
+    #   2      -0.032939            actual - theoretical delta mass
     #   3      302                  peptide start index
     #   4      309                  peptide end index
     #   5      6.00
@@ -96,6 +101,8 @@ module Ms::Mascot::Dat
     #   12     0
     #   13     0
     #   14     3481.990000
+    #   15     K                    nterm
+    #   16     R                    cterm
     #
     # The dat file is said to be generate by Mascot version 1.0, but the headers
     # section records 2.1.119.
@@ -114,7 +121,9 @@ module Ms::Mascot::Dat
       :unknown11,
       :unknown12,
       :unknown13,
-      :unknown14
+      :unknown14,
+      :nterm,
+      :cterm
     )
     
     # Indicies of QueryHit terms that will be cast to floats.
@@ -123,37 +132,76 @@ module Ms::Mascot::Dat
     # Indicies of QueryHit terms that will be cast to integers.
     QueryHitIntIndicies = [0,3,4,7,10,12,13]
     
-    class << self
+    module Utils
+      module_function
       
-      # Parses a QueryHit from the protein-query string.
+      # Parses a ProteinHit from the hit string.
+      def parse_protein_hit(str, desc, query_hits)
+        data = str.split(",")
+        ProteinHitFloatIndicies.each do |index|
+          data[index] = data[index].to_f
+        end
+        data << desc
+        data << query_hits
+        
+        ProteinHit.new(*data)
+      end
+      
+      # Parses a QueryHit from the hit-query string.
       def parse_query_hit(str, terms)
         return nil if str == nil || str == "-1"
         
-        query_data = str.split(",") + terms.split(",")
-        
+        data = str.split(",") + terms.split(",")
         QueryHitFloatIndicies.each do |index|
-          query_data[index] = query_data[index].to_f
+          data[index] = data[index].to_f
+        end
+        QueryHitIntIndicies.each do |index|
+          data[index] = data[index].to_i
         end
         
-        QueryHitIntIndicies.each do |index|
-          query_data[index] = query_data[index].to_i
-        end
-
-        QueryHit.new(*query_data)
+        QueryHit.new(*data)
       end
     end
     
+    include Utils
+    
     def initialize(data={}, section_name=self.class.section_name, dat=nil)
       super(data, section_name, dat)
-      @hits = []
+      @protein_hits = []
+      @query_hits = []
+    end
+    
+    # An array of protein hits.  Specify resolve=false to return just the
+    # currently parsed hits.
+    #
+    # Note that the hits array is indexed the same as in Mascot, ie the 
+    # ProteinHit for h1 is located at hits[1], meaning there is always
+    # an empty cell at hits[0].
+    def protein_hits(resolve=true)
+      return @protein_hits unless resolve
+      
+      hit = 1
+      hit += 1 while protein_hit(hit)
+      @protein_hits
+    end
+    
+    # Returns a ProteinHit at the hit index, or nil if no such hit exists.
+    def protein_hit(hit)
+      key = "h#{hit}"
+      return nil unless str = data[key]
+      @protein_hits[hit] ||= parse_protein_hit(str, data["#{key}_text"], query_hits(hit))
     end
     
     # Returns an array of QueryHits for the specified hit, or nil if no
     # such hit exists.
     def query_hits(hit)
       query = 1
-      query += 1 while query_hit(hit, query)
-      @hits[hit]
+      while data.has_key?("h#{hit}_q#{query}")
+        query_hit(hit, query)
+        query += 1 
+      end
+      
+      @query_hits[hit]
     end
     
     # Returns the QueryHit at the hit and query index, or nil if no such query
@@ -162,12 +210,12 @@ module Ms::Mascot::Dat
       key = "h#{hit}_q#{query}"
       return nil unless data.has_key?(key)
       
-      queries = @hits[protein] ||= []
+      queries = @query_hits[hit] ||= []
       if existing_query = queries[query]
         return existing_query
       end
       
-      if parsed_query = Summary.parse_query_hit(data[key], data["#{key}_terms"])
+      if parsed_query = parse_query_hit(data[key], data["#{key}_terms"])
         queries[query] = parsed_query
         return parsed_query
       end
