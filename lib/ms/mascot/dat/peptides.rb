@@ -23,14 +23,14 @@ module Ms::Mascot::Dat
   # online results.  Noting that a single query can match multiple peptides:
   #
   #   qN_pN=-1                         # no matches
-  #   qN_pM=peptide_hit;protein_map    # query N peptide hit M
+  #   qN_pM=peptide;protein_maps       # query N peptide hit M
   #   qN_pM_terms=A,B:C,D              # n and c-termini residues for each protein match
   #
-  # See the PeptideHit and ProteinMap documentation for interpreting a specific
-  # query.
+  # See the Peptide and ProteinMap documentation for interpretation of the
+  # specific query data.
   class Peptides < Ms::Mascot::Dat::Section
     
-    # === PeptideHit
+    # === Peptide
     #
     # Represents peptide hit data, infered by inspection of the MS/MS sample
     # results, esp {F981123.dat}[http://www.matrixscience.com/cgi/peptide_view.pl?file=../data/F981123.dat&query=2&hit=1&index=&px=1&section=5&ave_thresh=38].
@@ -69,8 +69,8 @@ module Ms::Mascot::Dat
     #   Number of fragment ion matches
     #   Experimental charge
     #
-    PeptideHit = Struct.new [
-      :missed_cleavages,
+    Peptide = Struct.new(
+      :n_missed_cleavages,
       :peptide_mass,
       :delta_mass,
       :unknown3,
@@ -80,8 +80,15 @@ module Ms::Mascot::Dat
       :score,
       :unknown8,
       :unknown9,
-      :unknown10
-    ]
+      :unknown10,
+      :protein_maps
+    )
+    
+    # Indicies of Peptide terms that will be cast to floats.
+    PeptideFloatIndicies = [1,2,7]
+    
+    # Indicies of Peptide terms that will be cast to integers.
+    PeptideIntIndicies = [0,3,5,9,10]
     
     # === ProteinMap
     #
@@ -97,14 +104,96 @@ module Ms::Mascot::Dat
     #   3      535                  peptide end index
     #   4      1
     #
-    ProteinMap = Struct.new [
+    ProteinMap = Struct.new(
       :id,
       :uknown1,
       :peptide_start,
       :peptide_end,
-      :unknown4
-    ]
+      :unknown4,
+      :nterm,
+      :cterm
+    )
     
+    # Indicies of ProteinMap terms that will be cast to integers.
+    ProteinMapIntIndicies = [1,2,3,4]
     
+    class << self
+      
+      # Parses a PeptideHit from the query-hit string.
+      def parse_peptide_hit(str, terms)
+        return nil if str == nil || str == "-1"
+        
+        peptide_data, protein_maps = str.split(";", 2)
+        protein_maps = protein_maps.split(",")
+        terms = terms.split(":")
+        
+        # parse peptide data
+        peptide_data = peptide_data.split(",")
+        
+        PeptideFloatIndicies.each do |index|
+          peptide_data[index] = peptide_data[index].to_f
+        end
+        
+        PeptideIntIndicies.each do |index|
+          peptide_data[index] = peptide_data[index].to_i
+        end
+
+        # parse protein_map data
+        protein_maps = protein_maps.zip(terms).collect do |map_data, terms|
+          data = map_data.split(":") + terms.split(',')
+          ProteinMapIntIndicies.each {|index| data[index] = data[index].to_i }
+          ProteinMap.new(*data)
+        end
+        
+        peptide_data << protein_maps
+        Peptide.new(*peptide_data)
+      end
+    end
+    
+    def initialize(data={}, section_name=self.class.section_name, dat=nil)
+      super(data, section_name, dat)
+      @queries = []
+    end
+    
+    # An array of peptides hits per query.  Specify resolve=false to return
+    # the currently parsed queries.
+    #
+    # Note that the queries array is indexed the same as in Mascot, ie the 
+    # PeptideHit for q1_p1 is located at queries[1][1], meaning there is
+    # always an empty cell at queries[0].
+    def queries(resolve=true)
+      return @queries unless resolve
+      
+      query = 1
+      query += 1 while peptide_hits(query)
+      @queries
+    end
+    
+    # Returns an array of PeptideHits for the specified query, or nil if no
+    # such query exists.
+    def peptide_hits(query)
+      hit = 1
+      hit += 1 while peptide_hit(query, hit)
+      @queries[query]
+    end
+    
+    # Returns the PeptideHit at the query and hit index, or nil if no such hit
+    # exists.
+    def peptide_hit(query, hit=1)
+      key = "q#{query}_p#{hit}"
+      return nil unless @data.has_key?(key)
+      
+      hits = @queries[query] ||= []
+      if existing_hit = hits[hit]
+        return existing_hit
+      end
+      
+      if parsed_hit = Peptides.parse_peptide_hit(@data[key], @data["#{key}_terms"])
+        hits[hit] = parsed_hit
+        return parsed_hit
+      end
+      
+      nil
+    end
   end
 end
