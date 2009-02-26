@@ -117,7 +117,8 @@ module Ms::Mascot::Dat
     # Indicies of ProteinMap terms that will be cast to integers.
     ProteinMapIntIndicies = [1,2,3,4]
     
-    class << self
+    module Utils
+      module_function
       
       # Parses a PeptideHit from the query-hit string.
       def parse_peptide_hit(str, terms)
@@ -153,6 +154,8 @@ module Ms::Mascot::Dat
         PeptideHit.new(*peptide_data)
       end
     end
+    
+    include Utils
     
     def initialize(data={}, section_name=self.class.section_name, dat=nil)
       super(data, section_name, dat)
@@ -192,7 +195,7 @@ module Ms::Mascot::Dat
         return existing_hit
       end
       
-      if parsed_hit = Peptides.parse_peptide_hit(data[key], data["#{key}_terms"])
+      if parsed_hit = parse_peptide_hit(data[key], data["#{key}_terms"])
         hits[hit] = parsed_hit
         return parsed_hit
       end

@@ -57,18 +57,20 @@ module Ms::Mascot::Dat
         
         new(params, section_name, archive)
       end
-      
-      # Parses a Protein from the protien data string.
-      def parse_protein(str)
-        return nil unless str
-        mass, description = str.split(',')
-        Protein.new(mass.to_f, description[1...-1])
-      end
     end
     
     # Returns a Protein for the specified protein id.
     def protein(id)
-      Proteins.parse_protein(data[id])
+      parse_protein(data[id])
     end 
+    
+    private
+    
+    # Parses a Protein from the protien data string.
+    def parse_protein(str)
+      return nil unless str
+      mass, description = str.split(',')
+      Protein.new(mass.to_f, description[1...-1])
+    end
   end
 end

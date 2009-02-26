@@ -1,6 +1,56 @@
 require File.join(File.dirname(__FILE__), '../../../tap_spec_helper.rb') 
 require 'ms/mascot/dat/query'
 
+class QueryUtilsSpec < MiniTest::Spec
+  include Ms::Mascot::Dat::Query::Utils
+  
+  #
+  # describe scan_ions
+  #
+
+  it "satisfies scan_ions documentation" do
+    str = "\nReformatted Ions\n"
+    scan_ions('1.23:4.56,7.8:9') do |num, end_point|
+      str << num
+      str << (end_point ? "\n" : " ")
+    end
+
+    str.must_equal %q{
+Reformatted Ions
+1.23 4.56
+7.8 9
+}
+  end
+
+  it "yields each number string and an end_point flag to the block" do
+    str = "129.098825:384.8,187.070000:461.5,289.150000:1019,402.239654:2017"
+
+    results = []
+    scan_ions(str) do |num, next_char|
+      results << [num, next_char]
+    end
+
+    results.must_equal [
+      ["129.098825", false],
+      ["384.8", true],
+      ["187.070000", false],
+      ["461.5", true],
+      ["289.150000", false],
+      ["1019", true],
+      ["402.239654", false],
+      ["2017", true]
+    ]
+  end
+
+  #
+  # describe parse_ions
+  #
+
+  it "satisfies parse_ions documentation" do
+    parse_ions('1.23:4.56,7.8:9').must_equal [[1.23, 4.56], [7.8, 9]]
+  end
+end
+
 class QuerySpec < MiniTest::Spec
   include Ms::Mascot::Dat
   
@@ -25,52 +75,6 @@ Ions1=129.098825:384.8,187.070000:461.5,289.150000:1019,402.239654:2017
   end
   
   #
-  # describe Query#scan_ions
-  #
-  
-  it "satisfies Query#scan_ions documentation" do
-    str = "\nReformatted Ions\n"
-    Query.scan_ions('1.23:4.56,7.8:9') do |num, end_point|
-      str << num
-      str << (end_point ? "\n" : " ")
-    end
-  
-    str.must_equal %q{
-Reformatted Ions
-1.23 4.56
-7.8 9
-}
-  end
-  
-  it "yields each number string and an end_point flag to the block" do
-    str = "129.098825:384.8,187.070000:461.5,289.150000:1019,402.239654:2017"
-    
-    results = []
-    Query.scan_ions(str) do |num, next_char|
-      results << [num, next_char]
-    end
-    
-    results.must_equal [
-      ["129.098825", false],
-      ["384.8", true],
-      ["187.070000", false],
-      ["461.5", true],
-      ["289.150000", false],
-      ["1019", true],
-      ["402.239654", false],
-      ["2017", true]
-    ]
-  end
-  
-  #
-  # describe Query.parse_ions
-  #
-  
-  it "satisfies Query#parse_ions documentation" do
-    Query.parse_ions('1.23:4.56,7.8:9').must_equal [[1.23, 4.56], [7.8, 9]]
-  end
-  
-  #
   # describe ion_str
   #
   
@@ -88,28 +92,6 @@ Reformatted Ions
       [187.070000, 461.5],
       [289.150000, 1019],
       [402.239654, 2017]
-    ]
-  end
-  
-  #
-  # describe scan_ions
-  #
-  
-  it "scans the first ion string like Query.scan_ions" do
-    results = []
-    query.scan_ions do |num, next_char|
-      results << [num, next_char]
-    end
-    
-    results.must_equal [
-      ["129.098825", false],
-      ["384.8", true],
-      ["187.070000", false],
-      ["461.5", true],
-      ["289.150000", false],
-      ["1019", true],
-      ["402.239654", false],
-      ["2017", true]
     ]
   end
 end

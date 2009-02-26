@@ -22,7 +22,9 @@ module Ms::Mascot::Dat
   # access.  See Section for parsing details.
   class Query < Ms::Mascot::Dat::Section
   
-    class << self
+    module Utils
+      module_function
+      
       # Scans an ion string for values, yielding each number as a string and the
       # a flag signaling whether or not the number marks the end of a datapoint
       # (ie the number is the intensity).
@@ -75,7 +77,9 @@ module Ms::Mascot::Dat
         ions
       end
     end
-  
+    
+    include Utils
+    
     # Returns the query index for self (ie 60 when section_name is 'query60')
     attr_reader :index
   
@@ -92,16 +96,7 @@ module Ms::Mascot::Dat
   
     # Returns a simple array of the parsed nth ion string.
     def ions(n=1)
-      @ions[n] ||= Query.parse_ions(ion_str(n))
-    end
-  
-    # Scans the nth ion string, yielding each number and a flag signaling whether
-    # or not the number marks the end of a datapoint (ie the number is the
-    # intensity).  See Query.scan_ions.
-    def scan_ions(n=1)
-      Query.scan_ions(ion_str(n)) do |num, end_point|
-        yield(num, end_point)
-      end
+      @ions[n] ||= parse_ions(ion_str(n))
     end
   end
 end

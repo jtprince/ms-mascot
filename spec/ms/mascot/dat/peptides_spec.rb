@@ -1,6 +1,43 @@
 require File.join(File.dirname(__FILE__), '../../../tap_spec_helper.rb') 
 require 'ms/mascot/dat/peptides'
 
+class PeptidesUtilsSpec < MiniTest::Spec
+  include Ms::Mascot::Dat::Peptides::Utils
+  
+  #
+  # describe arse_peptide_hit
+  #
+  
+  it "parses a PeptideHit from input data" do
+    hit_str = %Q{0,499.300598,-0.051862,2,LAVPT,10,0000000,3.87,0001002000000000000,0,0;"Y1319_MYCTU":0:531:535:1,"Y1353_MYCBO":0:532:536:1}
+    terms_str = "R,-:K,-"
+    
+    hit = parse_peptide_hit(hit_str, terms_str)
+    hit.n_missed_cleavages.must_equal 0
+    hit.sequence.must_equal 'LAVPT'
+    hit.score.must_equal 3.87
+    hit.unknown8.must_equal '0001002000000000000'
+    hit.protein_maps.length.must_equal 2
+    
+    protein_map = hit.protein_maps[0]
+    protein_map.id.must_equal 'Y1319_MYCTU'
+    protein_map.peptide_end.must_equal 535
+    protein_map.cterm.must_equal '-'
+    
+    protein_map = hit.protein_maps[1]
+    protein_map.peptide_start.must_equal 532
+    protein_map.nterm.must_equal 'K'
+  end
+
+  it "returns nil for nil hit string" do
+    parse_peptide_hit(nil, "").must_equal nil
+  end
+  
+  it "returns nil for hit string of '-1'" do
+    parse_peptide_hit("-1", "").must_equal nil
+  end
+end
+
 class PeptidesSpec < MiniTest::Spec
   include Ms::Mascot::Dat
   
@@ -22,39 +59,6 @@ q2_p3_terms=R,-
   
   before do
     @peptides = Peptides.parse SAMPLE_PEPTIDES
-  end
-  
-  #
-  # describe Peptides#parse_peptide_hit
-  #
-  
-  it "parses a PeptideHit from input data" do
-    hit_str = %Q{0,499.300598,-0.051862,2,LAVPT,10,0000000,3.87,0001002000000000000,0,0;"Y1319_MYCTU":0:531:535:1,"Y1353_MYCBO":0:532:536:1}
-    terms_str = "R,-:K,-"
-    
-    hit = Peptides.parse_peptide_hit(hit_str, terms_str)
-    hit.n_missed_cleavages.must_equal 0
-    hit.sequence.must_equal 'LAVPT'
-    hit.score.must_equal 3.87
-    hit.unknown8.must_equal '0001002000000000000'
-    hit.protein_maps.length.must_equal 2
-    
-    protein_map = hit.protein_maps[0]
-    protein_map.id.must_equal 'Y1319_MYCTU'
-    protein_map.peptide_end.must_equal 535
-    protein_map.cterm.must_equal '-'
-    
-    protein_map = hit.protein_maps[1]
-    protein_map.peptide_start.must_equal 532
-    protein_map.nterm.must_equal 'K'
-  end
-
-  it "returns nil for nil hit string" do
-    Peptides.parse_peptide_hit(nil, "").must_equal nil
-  end
-  
-  it "returns nil for hit string of '-1'" do
-    Peptides.parse_peptide_hit("-1", "").must_equal nil
   end
   
   #
@@ -89,7 +93,7 @@ q2_p3_terms=R,-
     
     hit = hits[3]
     hit.sequence.must_equal "LAVVV"
-    hit.delta_mass.must_equal -0.088254
+    hit.delta_mass.must_equal(-0.088254)
     hit.protein_maps[0].id.must_equal 'DYNA_NEUCR'
   end
   
