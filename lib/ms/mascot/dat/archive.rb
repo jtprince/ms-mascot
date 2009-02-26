@@ -124,7 +124,7 @@ module Ms
         # which should be present at the start of the string.
         def str_to_entry(str)
           if ctc = content_type_class(parse_content_type(str))
-            ctc.parse(str)
+            ctc.parse(str, self)
           else
             str
           end

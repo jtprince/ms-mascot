@@ -4,8 +4,8 @@ class Ms::Mascot::Dat::Query < Ms::Mascot::Dat::Section
   
   attr_reader :index
   
-  def initialize(data={}, section_name=self.class.section_name)
-    super(data, section_name)
+  def initialize(data={}, section_name=self.class.section_name, dat=nil)
+    super(data, section_name, dat)
     @index = section_name.strip[5..-1].to_i
   end
 
