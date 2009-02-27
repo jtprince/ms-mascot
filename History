@@ -1,0 +1,13 @@
+== 0.2.1 / 2009-02-26
+
+* Further development of .dat support
+
+== 0.2.0 / 2009-02-23
+
+Updated release utilizing Tap.
+
+* Added/Updated tasks for predicting spectra
+* Added Submit/Export tasks
+* Added preliminary .dat support
+* Fixed bugs for series like y0, b*
+* Converted tests to MiniTest specs

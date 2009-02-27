@@ -33,7 +33,7 @@ task :print_manifest do
   # included already (marking by the absence
   # of a label)
   Dir.glob("**/*").each do |file|
-    next if file =~ /^(rdoc|pkg|backup|config)/ || File.directory?(file)
+    next if file =~ /^(rdoc|pkg|backup|config|submodule|spec)/ || File.directory?(file)
     
     path = File.expand_path(file)
     files[path] = ["", file] unless files.has_key?(path)
@@ -54,15 +54,9 @@ Rake::RDocTask.new(:rdoc) do |rdoc|
   spec = gemspec
   
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title    = 'ms-mascot'
-  rdoc.main   = 'README'
-  rdoc.options << '--line-numbers' << '--inline-source'
   rdoc.rdoc_files.include( spec.extra_rdoc_files )
   rdoc.rdoc_files.include( spec.files.select {|file| file =~ /^lib.*\.rb$/} )
   
-  # Using Tdoc to template your Rdoc will result in configurations being
-  # listed with documentation in a subsection following attributes.  Not
-  # necessary, but nice.
   require 'cdoc'
   rdoc.template = 'cdoc/cdoc_html_template' 
   rdoc.options << '--fmt' << 'cdoc'
@@ -92,10 +86,14 @@ task :default => :spec
 
 desc 'Run specs.'
 Rake::TestTask.new(:spec) do |t|
+  # can specify SPEC=<file>_spec.rb or TEST=<file>_spec.rb
+  ENV['TEST'] = ENV['SPEC'] if ENV['SPEC']  
   t.libs = ['lib']
   t.test_files = Dir.glob( File.join('spec', ENV['pattern'] || '**/*_spec.rb') )
   unless ENV['gems']
     t.libs << 'submodule/ms-testdata/lib'
+    t.libs << 'submodule/ms-in_silico/lib'
+    t.libs << 'submodule/tap-http/lib'
   end
   t.verbose = true
   t.warning = true

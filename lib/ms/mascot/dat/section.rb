@@ -30,7 +30,7 @@ module Ms
           # Parses a new instance from str.  Section after then content-type
           # declaration are parsed into the parameters hash.  Section follow
           # a simple "key=value\n" pattern.
-          def parse(str)
+          def parse(str, archive=nil)
             params = {}
             scanner = StringScanner.new(str)
             
@@ -42,12 +42,12 @@ module Ms
             
             # scan each pair.
             while key = scanner.scan(/[^=]+/)
-              scanner.skip(/=/)
+              scanner.skip(/\=/)
               params[key] = scanner.scan(/[^\n]*/)
               scanner.skip(/\n/)
             end
             
-            new(params, section_name)
+            new(params, section_name, archive)
           end
           
           # Returns the name of the section represented by this class.  Section
@@ -67,9 +67,13 @@ module Ms
         # The class section_name.
         attr_reader :section_name
         
-        def initialize(data={}, section_name=self.class.section_name)
+        # A backreference to the dat containing self.
+        attr_reader :dat
+        
+        def initialize(data={}, section_name=self.class.section_name, dat=nil)
           @data = data
           @section_name = section_name
+          @dat = dat
         end
         
         # Formats self as a string with the content-type header.
@@ -78,7 +82,7 @@ module Ms
 
 Content-Type: application/x-Mascot; name="#{section_name}"
 
-#{data.to_a.collect {|entry| TO_S_FORMAT % entry}.join}}
+#{data.to_a.collect {|entry| self.class::TO_S_FORMAT % entry}.join}}
         end
       end
     end

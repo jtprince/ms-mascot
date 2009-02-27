@@ -7,40 +7,59 @@ class SubmitSpec < MiniTest::Spec
   
   include Ms::Mascot
   include Tap::Test::HttpTest
+
+  #
+  # describe SUCCESS_REGEXP
+  #
   
-  def target
-    "http://localhost:2000/echo"
+  it "matches a successful search response" do 
+    assert File.read(ctr['success.html']) =~ Submit::SUCCESS_REGEXP
+    $1.must_equal "../data/20081202/F011846.dat"
   end
   
-  def test_submit
-    web_test do
-      t = Submit.new(
-        :url => target, 
-        :request_method => :post,
-        :headers => {'Content-Type' => 'multipart/form-data; boundary=1234567890'},
-        :params => {:key, 'value'})
-        
-      res = t.process('path/to/file.txt')
-      
-      expected = strip_align %Q{
-        POST /echo HTTP/1.1
-        Accept: */*
-        Content-Type: multipart/form-data; boundary=1234567890
-        Content-Length: 215
-        Host: localhost:2000
-        
-        --1234567890
-        Content-Disposition: form-data; name="key"
+  #
+  # describe FAILURE_REGEXP
+  #
+  
+  it "matches a failure response" do 
+    assert File.read(ctr['error_invalid_file.html']) =~ Submit::FAILURE_REGEXP
+    ("\n" + $1).must_equal %Q{
+The following error has occured getting your search details:<BR>
+Browser specifies 0 bytes of data to be uploaded. Please retry [M00270]<BR>
+Have you tried the <A HREF="browser.pl">browser compatibility</A> test page?<BR>}
 
-        value
-        --1234567890
-        Content-Disposition: form-data; name="FILE"; filename="path/to/file.txt"
-        Content-Type: application/octet-stream
-
-        value
-        --1234567890--
-        }
-      assert_request_equal(expected, res.first.body)
+    assert File.read(ctr['error_invalid_units.html']) =~ Submit::FAILURE_REGEXP
+    ("\n" + $1).must_equal %Q{
+<BR>Sorry, your search could not be performed due to the following mistake entering data.<BR>
+Invalid units (Pork) specified for the "ITOLU" parameter [M00021]<BR>
+Please press the back button on your browser, correct the fault and retry the search.<BR>}
+  end
+  
+  #
+  # describe process
+  #
+  
+  it "returns .dat filepath on success" do
+    server = MockServer.new do |env| 
+      [File.read(ctr['success.html'])]
+    end
+    
+    web_test(server) do
+      t = Submit.new(:uri => "localhost:2000")
+      mgf_file = method_root.prepare(:tmp, 'mgf_file') {}
+      t.process(mgf_file).must_equal "../data/20081202/F011846.dat"
+    end
+  end
+  
+  it "returns nil on failure" do
+    server = MockServer.new do |env| 
+      [File.read(ctr['error_invalid_file.html'])]
+    end
+    
+    web_test(server) do
+      t = Submit.new(:uri => "localhost:2000")
+      mgf_file = method_root.prepare(:tmp, 'mgf_file') {}
+      t.process(mgf_file).must_equal nil
     end
   end
 end

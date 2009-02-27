@@ -1,7 +1,7 @@
 require File.join(File.dirname(__FILE__), '../../../tap_spec_helper.rb') 
 require 'ms/mascot/dat/section'
 
-class SectionTest < MiniTest::Spec
+class SectionSpec < MiniTest::Spec
   include Ms::Mascot::Dat
   
   #

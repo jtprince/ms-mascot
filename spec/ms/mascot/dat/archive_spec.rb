@@ -209,5 +209,4 @@ IATOL=
     assert_equal 2, dat.length
     assert_equal nil, dat.section_name(10)
   end
-  
 end

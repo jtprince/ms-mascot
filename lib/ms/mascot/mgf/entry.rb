@@ -139,8 +139,16 @@ module Ms
             
           target << "CHARGE=#{charge_to_s}\n"
           target << "PEPMASS=#{format options[:pepmass_precision]}\n" % pepmass
-
-          data_format = "#{format options[:mz_precision]} #{format options[:intensity_precision]}\n"
+          
+          entry = data[0]
+          data_format = case
+          when entry == nil then nil
+          when entry.kind_of?(Array) && entry.length == 2
+            "#{format options[:mz_precision]} #{format options[:intensity_precision]}\n"
+          else
+            "#{format options[:mz_precision]}\n"
+          end
+          
           data.each do |data_point|
             target << (data_format % data_point)
           end
@@ -163,7 +171,7 @@ module Ms
 
         # returns a format string for the specified precision
         def format(precision) # :nodoc:
-          precision == nil ? "%s" : "%.#{precision}f"
+          (precision == nil || precision == 0) ? "%s" : "%.#{precision}f"
         end
         
       end

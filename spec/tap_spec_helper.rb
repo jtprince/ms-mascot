@@ -3,9 +3,10 @@ require 'minitest/spec'
 require 'tap'
 require 'tap/spec'
 
-
-def xit(name, &block)
-end
+class Class
+  def xit(name, &block)
+  end
+end unless Class.respond_to?(:xit)
 
 begin
   require 'ms/testdata'

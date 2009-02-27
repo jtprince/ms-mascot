@@ -124,7 +124,7 @@ module Ms
         # which should be present at the start of the string.
         def str_to_entry(str)
           if ctc = content_type_class(parse_content_type(str))
-            ctc.parse(str)
+            ctc.parse(str, self)
           else
             str
           end
@@ -163,12 +163,19 @@ module Ms
           @section_names[index] ||= parse_section_name(index)
         end
         
-        def each_query(&block)
-          section('index').queries.each do |key|
-            block.call( self.section(key) )
+        # Returns the number of queries registered in self.
+        def nqueries
+          @nqueries ||= section_names.select {|name| name =~ /query/ }.length
+        end
+        
+        # Yields each query to the block.
+        def each_query
+          1.upto(nqueries) do |n|
+            yield(query(n))
           end
         end
-
+        
+        # Returns the specified query. 
         def query(num)
           if si = section_index("query#{num}")
             self[si]
