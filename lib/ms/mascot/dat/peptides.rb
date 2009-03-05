@@ -69,7 +69,7 @@ module Ms::Mascot::Dat
     #   Number of fragment ion matches
     #   Experimental charge
     #
-    PeptideHit = Struct.new(
+    PeptideHit = Struct.new( 
       :n_missed_cleavages,
       :peptide_mass,
       :delta_mass,
@@ -81,7 +81,9 @@ module Ms::Mascot::Dat
       :unknown8,
       :unknown9,
       :unknown10,
-      :protein_maps
+      :protein_maps,
+      :hit_num,
+      :query_num
     )
     
     # Indicies of PeptideHit terms that will be cast to floats.
@@ -199,6 +201,8 @@ module Ms::Mascot::Dat
       end
       
       if parsed_hit = parse_peptide_hit(data[key], data["#{key}_terms"])
+        parsed_hit.query_num = query
+        parsed_hit.hit_num = hit
         hits[hit] = parsed_hit
         return parsed_hit
       end

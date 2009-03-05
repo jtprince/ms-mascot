@@ -21,6 +21,97 @@ module Ms
       
       # Provides access to a Mascot dat file.
       class Archive < ExternalArchive
+
+        # high level methods to access basic Dat information
+        module Interface
+
+          # Yields each query to the block.
+          def each_query
+            1.upto(nqueries) do |n|
+              yield(query(n))
+            end
+          end
+
+          # Returns the specified query. 
+          def query(num)
+            if si = section_index("query#{num}")
+              self[si]
+            else
+              nil
+            end
+          end
+
+          # by default, yields the top PeptideHit object per query
+          # opts may be:
+          #     :by => :top
+          #       :top     top ranked hit (default)
+          #       :groups  an array of hits
+          #       :all     each peptide hit (all ranks)
+          #
+          #     :yield_nil => true 
+          #       true     returns nil when a query had no peptide hit (default)
+          #       false    this hit (or group) is not yielded
+          #     :with_query => false
+          #       false    just returns peptide hits/groups (default) 
+          #       true     yields the peptide_hit/group and associated query
+          def each_peptide_hit(opts={})
+            defaults = { :by => :top, :yield_nil => true, :with_query => false }
+            (by, yield_nil, with_query) = defaults.merge(opts).values_at(:by, :yield_nil, :with_query)
+
+            peptides = section('peptides')
+            1.upto(nqueries) do |n|
+              case by
+              when :top
+                hit = peptides.peptide_hit(n)
+                unless !yield_nil && hit.nil?
+                  if with_query
+                    yield hit, query(n)
+                  else
+                    yield hit
+                  end
+                end
+              when :groups
+                group = peptides.peptide_hits(n)
+                group.shift # remove the 0 index
+                unless !yield_nil && group.first.nil?
+                  if with_query
+                    yield group, query(n)
+                  else
+                    yield group
+                  end
+                end
+              when :all
+
+                group = peptides.peptide_hits(n)
+                group.shift # remove the 0 index
+                unless !yield_nil && group.first.nil?
+                  # need to return the nil hit if we are yielding nils:
+                  if group.first.nil?
+                    if with_query
+                      yield nil, query(n)
+                    else
+                      yield nil
+                    end
+                  end
+                  group.each do |pep_hit|
+                    if with_query
+                      yield pep_hit, query(n)
+                    else
+                      yield pep_hit
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+        end # Interface
+
+        include Interface
+
+
+
+        # Parsing & Archive functions
         module Utils
           module_function
           
@@ -170,21 +261,6 @@ module Ms
           @nqueries ||= section_names.select {|name| name =~ /query/ }.length
         end
         
-        # Yields each query to the block.
-        def each_query
-          1.upto(nqueries) do |n|
-            yield(query(n))
-          end
-        end
-        
-        # Returns the specified query. 
-        def query(num)
-          if si = section_index("query#{num}")
-            self[si]
-          else
-            nil
-          end
-        end
 
         private
         
@@ -201,7 +277,8 @@ module Ms
           io.pos = index[0] + 1
           parse_content_type(io.readline)[:section_name]
         end
-      end
-    end
-  end
-end
+
+      end # Archive
+    end  # Dat
+  end  # Mascot
+end  # Ms
