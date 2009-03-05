@@ -21,6 +21,7 @@ module Ms
       
       # Provides access to a Mascot dat file.
       class Archive < ExternalArchive
+        include Dat
 
         # high level methods to access basic Dat information
         module Interface

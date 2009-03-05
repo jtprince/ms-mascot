@@ -1,5 +1,6 @@
 require 'ms/mascot/dat/section'
 require 'ms/mascot/mgf/entry'
+require 'cgi'
 
 module Ms::Mascot::Dat
   
@@ -122,9 +123,11 @@ module Ms::Mascot::Dat
           hit.peptide_mass + hit.delta_mass
         end
       data.each_pair do |key,value|
-        next if key =~ /Ions/
-          header[key.to_s.upcase] = value
+        up = key.to_s.upcase
+        next if key =~ /Ions/ || !Ms::Mascot::Mgf::VALID_LOCAL_HEADERS.include?(up)
+          header[up] = value
       end
+      header['TITLE'] = CGI.unescape(header['TITLE'])
       Ms::Mascot::Mgf::Entry.new(header, self.ions)
     end
 

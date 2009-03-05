@@ -162,42 +162,37 @@ class DatUsageSpec < MiniTest::Spec
     end
   end
 
+                   
   # high level spec
   it 'can be used to filter hits by score and reformat mgf files' do
+    # needs to be turned into acts_as_file_test 
+    # I tried but got error: RuntimeError: teardown failure: method_root is nil
+    outfile = File.dirname(__FILE__) + '/tempfile.mgf'
     Dat.open(@file) do |dat|
-      mgf = Ms::Mascot::Mgf::Archive.new
-      dat.each_peptide_hit(:yield_nil => false, :with_query => true) do |hit, query|
-        if hit.score < 30
-          mgf << query.to_mgf(hit)
-        end
-      end
-
-      mgf.length.must_equal 2
-      query_two = mgf[0]
-      query_two.charge.must_equal 2
-      query_two.title.must_equal "JP_PM3_0113_10ul_orb1%2e1233%2e1233%2e2%2edta"
-      
-      query_three = mgf[1]
-      query_three.charge.must_equal 1
-      query_three.pepmass.must_be_within_delta(936.401093 + 0.057511, 0.000001)
-
-    end
-  end
-
-  it 'can write mgf from select queries' do
-    outfile = 'outfile.mgf'
-    Dat.open(@file) do |dat|
-      dat.to_mgf(outfile) do |mgf|
+      Ms::Mascot::Mgf.write(outfile) do |mgf|
         dat.each_peptide_hit(:yield_nil => false, :with_query => true) do |hit, query|
-          mgf << query.to_mgf(hit)
+          if hit.score < 30
+            mgf << query.to_mgf(hit)
+          end
         end
+
+        mgf.length.must_equal 2
+        query_two = mgf[0]
+        query_two.charge.must_equal 2
+        query_two.title.must_equal "JP_PM3_0113_10ul_orb1.1233.1233.2.dta"
+
+        query_three = mgf[1]
+        query_three.charge.must_equal 1
+        query_three.pepmass.must_be_within_delta(936.401093 + 0.057511, 0.000001)
       end
     end
     assert File.exist?(outfile)
-    assert IO.read.match(/BEGIN/)
-
+    lines = IO.readlines(outfile)
+    lines.grep(/BEGIN IONS/).size.must_equal 2
+    lines.grep(/END IONS/).size.must_equal 2
+    lines.grep(/JP_PM3.*1233\.1233\.2\.dta/).size.must_equal 1
+    File.unlink outfile
   end
-
 end
 
 
