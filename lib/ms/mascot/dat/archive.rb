@@ -109,6 +109,8 @@ module Ms
           reindex_by_sep(boundary, 
             :entry_follows_sep => true, 
             :exclude_sep => true,
+            # :blksize => 8388608,  # default in ExternalArchive
+            :blksize => 16777216,   # doubled the blksize
           &block)
 
           # remove the first and last entries, which contain
