@@ -1,4 +1,5 @@
 require 'ms/mascot/dat/section'
+require 'ms/mascot/mgf/entry'
 
 module Ms::Mascot::Dat
   
@@ -98,5 +99,34 @@ module Ms::Mascot::Dat
     def ions(n=1)
       @ions[n] ||= parse_ions(ion_str(n))
     end
+
+    # allows access to values in data with method calls
+    #def method_missing(*args)
+    #  if args.size == 1 && (val = data[arg.to_s])
+    #    val
+    #  else
+    #    super(*args)
+    #  end
+    #end
+
+    # returns a Ms::Mascot::Mgf::Entry object.  
+    # pepmass may be a Numeric OR a PeptideHit object (extracting the pepmass
+    # by PeptideHit#peptide_mass + PeptideHit#delta_mass
+    def to_mgf(pepmass)
+      header = {}
+      header['PEPMASS'] = 
+        if pepmass.is_a? Numeric
+          pepmass
+        else
+          hit = pepmass
+          hit.peptide_mass + hit.delta_mass
+        end
+      data.each_pair do |key,value|
+        next if key =~ /Ions/
+          header[key.to_s.upcase] = value
+      end
+      Ms::Mascot::Mgf::Entry.new(header, self.ions)
+    end
+
   end
 end

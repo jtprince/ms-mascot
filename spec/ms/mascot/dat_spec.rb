@@ -162,38 +162,16 @@ class DatUsageSpec < MiniTest::Spec
     end
   end
 
-
   # high level spec
   it 'can be used to filter hits by score and reformat mgf files' do
     Dat.open(@file) do |dat|
-      peptides = dat.section('peptides')
-      low_hits = []
-      1.upto(dat.nqueries) do |n|
-        hit = peptides.peptide_hit(n)
-        if hit && hit.score < 30
-          pepmass = hit.peptide_mass + hit.delta_mass
-          low_hits << [n, pepmass]
-        end
-      end
-      
-      # this may be optimized; the .dat file is already
-      # in a data exchange format for mascot so reformatting
-      # should not ultimately be necessary
       mgf = Ms::Mascot::Mgf::Archive.new
-      low_hits.each do |n, pepmass|
-        query = dat.query(n)
-        data = query.ions
-        
-        headers = {}
-        query.data.each_pair do |key, value|
-          next if key =~ /Ions/
-          headers[key.to_s.upcase] = value
+      dat.each_peptide_hit(:yield_nil => false, :with_query => true) do |hit, query|
+        if hit.score < 30
+          mgf << query.to_mgf(hit)
         end
-        headers['PEPMASS'] = pepmass
-        
-        mgf << Ms::Mascot::Mgf::Entry.new(headers, data)
       end
-      
+
       mgf.length.must_equal 2
       query_two = mgf[0]
       query_two.charge.must_equal 2
@@ -202,9 +180,23 @@ class DatUsageSpec < MiniTest::Spec
       query_three = mgf[1]
       query_three.charge.must_equal 1
       query_three.pepmass.must_be_within_delta(936.401093 + 0.057511, 0.000001)
+
     end
   end
 
+  it 'can write mgf from select queries' do
+    outfile = 'outfile.mgf'
+    Dat.open(@file) do |dat|
+      dat.to_mgf(outfile) do |mgf|
+        dat.each_peptide_hit(:yield_nil => false, :with_query => true) do |hit, query|
+          mgf << query.to_mgf(hit)
+        end
+      end
+    end
+    assert File.exist?(outfile)
+    assert IO.read.match(/BEGIN/)
+
+  end
 
 end
 
