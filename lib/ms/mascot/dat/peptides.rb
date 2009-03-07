@@ -83,9 +83,9 @@ module Ms::Mascot::Dat
       :unknown10,
       :protein_maps,
       :hit_num,
-      :query_num
+      :query_num,
     )
-    
+
     # Indicies of PeptideHit terms that will be cast to floats.
     PeptideHitFloatIndicies = [1,2,7]
     
