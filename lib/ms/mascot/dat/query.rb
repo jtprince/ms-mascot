@@ -113,7 +113,12 @@ module Ms::Mascot::Dat
     # returns a Ms::Mascot::Mgf::Entry object.  
     # pepmass may be a Numeric OR a PeptideHit object (extracting the pepmass
     # by PeptideHit#peptide_mass + PeptideHit#delta_mass
-    def to_mgf(pepmass)
+    # options are:
+    #
+    #     :valid_headers = true (default) | false
+    def to_mgf(pepmass, opts={})
+      opts = {:valid_headers => true}.merge(opts)
+      valid_headers = opts[:valid_headers]
       header = {}
       header['PEPMASS'] = 
         if pepmass.is_a? Numeric
@@ -124,8 +129,9 @@ module Ms::Mascot::Dat
         end
       data.each_pair do |key,value|
         up = key.to_s.upcase
-        next if key =~ /Ions/ || !Ms::Mascot::Mgf::VALID_LOCAL_HEADERS.include?(up)
-          header[up] = value
+        next if key =~ /Ions/ 
+        next if valid_headers && !Ms::Mascot::Mgf::VALID_LOCAL_HEADERS.include?(up)
+        header[up] = value
       end
       header['TITLE'] = CGI.unescape(header['TITLE'])
       Ms::Mascot::Mgf::Entry.new(header, self.ions)
