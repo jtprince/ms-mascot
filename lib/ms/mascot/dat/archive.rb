@@ -202,7 +202,7 @@ module Ms
             :entry_follows_sep => true, 
             :exclude_sep => true,
             # :blksize => 8388608,  # default in ExternalArchive
-            :blksize => 16777216,   # doubled the blksize
+            :blksize => 33_554_432,  # quadrupled the blksize
           &block)
 
           # remove the first and last entries, which contain
