@@ -87,6 +87,7 @@ module Ms::Mascot::Dat
   
     def initialize(data={}, section_name=self.class.section_name, dat=nil)
       super(data, section_name, dat)
+      data['title'] = CGI.unescape(data['title'])
       @index = section_name.strip[5..-1].to_i
       @ions=[]
     end
@@ -99,6 +100,10 @@ module Ms::Mascot::Dat
     # Returns a simple array of the parsed nth ion string.
     def ions(n=1)
       @ions[n] ||= parse_ions(ion_str(n))
+    end
+
+    def title
+      data['title']
     end
 
     # allows access to values in data with method calls
@@ -133,8 +138,9 @@ module Ms::Mascot::Dat
         next if valid_headers && !Ms::Mascot::Mgf::VALID_LOCAL_HEADERS.include?(up)
         header[up] = value
       end
-      header['TITLE'] = CGI.unescape(header['TITLE'])
-      Ms::Mascot::Mgf::Entry.new(header, self.ions)
+      # note that we sort the ions because I think I've seen files without
+      # them being sorted
+      Ms::Mascot::Mgf::Entry.new(header, self.ions.sort)
     end
 
   end
