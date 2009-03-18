@@ -28,56 +28,7 @@ module Ms
     # values MUST be overridden and are only provided as a template (for
     # those that want the adventure of manually making a config file).
     #
-    class Submit < Tap::Http::Submit
-      
-      # The MatrixScience public search site
-      DEFAULT_URI = "http://www.matrixscience.com/cgi/nph-mascot.exe?1"
-      
-      # Parameters for MS/MS searching of a human sample digested with trypsin.
-      DEFAULT_PARAMS = {
-        "ErrTolRepeat"=>"0",
-        "PFA"=>"1",
-        "INSTRUMENT"=>"Default",
-        "REPTYPE"=>"peptide",
-        "COM"=>"Search Title",
-        "FORMAT"=>"Mascot generic",
-        "PEAK"=>"AUTO",
-        "CHARGE"=>"2+",
-        "INTERMEDIATE"=>"",
-        "SHOWALLMODS"=>"",
-        "PRECURSOR"=>"",
-        "USERNAME"=>"Name",
-        "TOLU"=>"ppm",
-        "USEREMAIL"=>"email@email.com",
-        "CLE"=>"Trypsin",
-        "TOL"=>"100",
-        "ITOLU"=>"Da",
-        "QUANTITATION"=>"None",
-        "SEARCH"=>"MIS",
-        "DB"=>"SwissProt",
-        "PEP_ISOTOPE_ERROR"=>"0",
-        "ITOL"=>"0.6",
-        "FORMVER"=>"1.01",
-        "IT_MODS"=> [
-          "Acetyl (Protein N-term)",
-          "Gln->pyro-Glu (N-term Q)",
-          "Oxidation (M)"],
-        "MASS"=>"Monoisotopic",
-        "REPORT"=>"AUTO",
-        "TAXONOMY"=>". . . . . . . . . . . . . . . . Homo sapiens (human)"
-      }
-      
-      # Typical headers for an MS/MS search.
-      DEFAULT_HEADERS = {
-       "Keep-Alive"=>"300",
-       "Accept-Encoding"=>"gzip,deflate",
-       "Accept-Language"=>"en-us,en;q=0.5",
-       "Content-Type"=> "multipart/form-data; boundary=---------------------------168072824752491622650073",
-       "Accept-Charset"=>"ISO-8859-1,utf-8;q=0.7,*;q=0.7",
-       "Accept"=>"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-       "Connection"=>"keep-alive"
-      }
-      
+    class Submit < Tap::Http::Submit      
       # Matches a successful search response.  After the match:
       #
       #  $1:: the result file
@@ -88,29 +39,69 @@ module Ms
       #  $1:: the failure message
       FAILURE_REGEXP = /<BR>(.*)/m
       
-      config :uri, DEFAULT_URI                           # The uri of the mascot search site
-      config :headers, DEFAULT_HEADERS, &c.hash          # a hash of request headers
-      config :params, DEFAULT_PARAMS, &c.hash            # a hash of query parameters
-      config :request_method, 'POST'                     # the request method (get or post)
-      config :version, 1.1                               # the HTTP version
-      config :redirection_limit, nil, &c.integer_or_nil  # the redirection limit for the request
-      
-      def process(mgf_file)
-        
-        # duplicate the configurations
-        request = {}
-        config.each_pair do |key, value|
-          request[key] = value.kind_of?(Hash) ? value.dup : value
+      MASCOT_SWITCH = lambda do |input|
+        input = case input
+        when true, 1, '1', /true/i   then '1'
+        when false, 0, '0', /false/i then '0'
+        else input
         end
         
-        # set filename for upload
-        file = request[:params]['FILE'] ||= {}
-        file['Filename'] = mgf_file
-        file['Content-Type'] = 'application/octet-stream'
-        file.delete('Content')
+        c.validate(input, ['1', '0'])
+      end
+      DEFAULT_ATTRIBUTES[MASCOT_SWITCH] = {:type => :switch}
+      
+      # The MatrixScience public search site
+      config :uri, "http://www.matrixscience.com/cgi/nph-mascot.exe?1"  # The uri of the mascot search site
+      
+      # Parameters for MS/MS searching of a human sample digested with trypsin
+      nest :params do                                                   # The query parameters
+        config "ErrTolRepeat", 0, &MASCOT_SWITCH
+        config "PFA", 1, &MASCOT_SWITCH
+        config "INSTRUMENT", "Default", &c.string
+        config "REPTYPE", "peptide",  &c.string
+        config "COM", "Search Title",  &c.string
+        config "FORMAT", "Mascot generic",  &c.string
+        config "PEAK", "AUTO",  &c.string
+        config "CHARGE", 2, &c.integer
+        config "INTERMEDIATE", "",  &c.string
+        config "SHOWALLMODS", "",  &c.string
+        config "PRECURSOR", "",  &c.string
+        config "USERNAME", "Name",  &c.string
+        config "TOLU", "ppm",  &c.string
+        config "USEREMAIL", "email@email.com", &c.string
+        config "CLE", "Trypsin", &c.string
+        config "TOL", 100, &c.num
+        config "ITOLU", "Da", &c.string
+        config "QUANTITATION", "None", &c.string
+        config "SEARCH", "MIS", &c.string
+        config "DB", "SwissProt", &c.string
+        config "PEP_ISOTOPE_ERROR", 0, &c.num
+        config "ITOL", 0.6, &c.float
+        config "FORMVER", 1.01, &c.float
+        config "IT_MODS", [
+          "Acetyl (Protein N-term)",
+          "Gln->pyro-Glu (N-term Q)",
+          "Oxidation (M)"], &c.list
+        config "MASS", "Monoisotopic", &c.string
+        config "REPORT", "AUTO", &c.string
+        config "TAXONOMY", ". . . . . . . . . . . . . . . . Homo sapiens (human)", &c.string
+      end
+      
+      def process(mgf_file)
+        File.open(mgf_file) do |io|
+          # set filename for upload
+          params = config[:params].to_hash
+          params['FILE'] = io
         
-        # submit request
-        parse_response_body super(request)
+          # submit request
+          super(
+            :request_method => 'POST',
+            :uri => uri,
+            :params => params
+          ) do |page|
+            parse_response_body(page.body)
+          end
+        end
       end
       
       # Processes the response body.  Returns the result file if the body
