@@ -1,4 +1,5 @@
 require 'tap/http/submit'
+require 'ms/mascot/validation'
 
 module Ms
   module Mascot
@@ -28,7 +29,9 @@ module Ms
     # values MUST be overridden and are only provided as a template (for
     # those that want the adventure of manually making a config file).
     #
-    class Submit < Tap::Http::Submit      
+    class Submit < Tap::Http::Submit
+      include Validation
+      
       # Matches a successful search response.  After the match:
       #
       #  $1:: the result file
@@ -38,17 +41,6 @@ module Ms
       #
       #  $1:: the failure message
       FAILURE_REGEXP = /<BR>(.*)/m
-      
-      MASCOT_SWITCH = lambda do |input|
-        input = case input
-        when true, 1, '1', /true/i   then '1'
-        when false, 0, '0', /false/i then '0'
-        else input
-        end
-        
-        c.validate(input, ['1', '0'])
-      end
-      DEFAULT_ATTRIBUTES[MASCOT_SWITCH] = {:type => :switch}
       
       # The MatrixScience public search site
       config :uri, "http://www.matrixscience.com/cgi/nph-mascot.exe?1"  # The uri of the mascot search site

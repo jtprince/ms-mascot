@@ -1,19 +1,11 @@
 require 'tap/http/submit'
+require 'ms/mascot/validation'
 
 module Ms
   module Mascot
     # :startdoc::manifest exports results from a search
     class Export < Tap::Http::Submit
-      MASCOT_SWITCH = lambda do |input|
-        input = case input
-        when true, 1, '1', /true/i   then '1'
-        when false, 0, '0', /false/i then '0'
-        else input
-        end
-        
-        c.validate(input, ['1', '0'])
-      end
-      DEFAULT_ATTRIBUTES[MASCOT_SWITCH] = {:type => :switch}
+      include Validation
       
       # The MatrixScience public search site
       config :uri, "http://www.matrixscience.com/cgi/export_dat_2.pl"
