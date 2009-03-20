@@ -62,7 +62,7 @@ module Ms
         config "COM", "Search Title",  &c.string
         config "FORMAT", "Mascot generic",  &c.string
         config "PEAK", "AUTO",  &c.string
-        config "CHARGE", 2, &c.integer
+        config "CHARGE", "+2"
         config "INTERMEDIATE", "",  &c.string
         config "SHOWALLMODS", "",  &c.string
         config "PRECURSOR", "",  &c.string
