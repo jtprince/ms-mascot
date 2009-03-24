@@ -1,4 +1,6 @@
 require 'ms/mascot/dat/section'
+require 'ms/mascot/mgf/entry'
+require 'cgi'
 
 module Ms::Mascot::Dat
   
@@ -85,6 +87,7 @@ module Ms::Mascot::Dat
   
     def initialize(data={}, section_name=self.class.section_name, dat=nil)
       super(data, section_name, dat)
+      data['title'] = CGI.unescape(data['title'])
       @index = section_name.strip[5..-1].to_i
       @ions=[]
     end
@@ -98,5 +101,47 @@ module Ms::Mascot::Dat
     def ions(n=1)
       @ions[n] ||= parse_ions(ion_str(n))
     end
+
+    def title
+      data['title']
+    end
+
+    # allows access to values in data with method calls
+    #def method_missing(*args)
+    #  if args.size == 1 && (val = data[arg.to_s])
+    #    val
+    #  else
+    #    super(*args)
+    #  end
+    #end
+
+    # returns a Ms::Mascot::Mgf::Entry object.  
+    # pepmass may be a Numeric OR a PeptideHit object (extracting the pepmass
+    # by PeptideHit#peptide_mass + PeptideHit#delta_mass
+    # options are:
+    #
+    #     :valid_headers = true (default) | false
+    def to_mgf(pepmass, opts={})
+      opts = {:valid_headers => true}.merge(opts)
+      valid_headers = opts[:valid_headers]
+      header = {}
+      header['PEPMASS'] = 
+        if pepmass.is_a? Numeric
+          pepmass
+        else
+          hit = pepmass
+          hit.peptide_mass + hit.delta_mass
+        end
+      data.each_pair do |key,value|
+        up = key.to_s.upcase
+        next if key =~ /Ions/ 
+        next if valid_headers && !Ms::Mascot::Mgf::VALID_LOCAL_HEADERS.include?(up)
+        header[up] = value
+      end
+      # note that we sort the ions because I think I've seen files without
+      # them being sorted
+      Ms::Mascot::Mgf::Entry.new(header, self.ions.sort)
+    end
+
   end
 end

@@ -8,6 +8,13 @@ module Ms
       # Provides array-like access to an mgf archival file.
       class Archive < ExternalArchive
 
+        # yields an object for writing
+        def self.write(filename)
+          mgf = self.new
+          File.open(filename, 'w') do |out|
+          end
+        end
+
         # Reindexes self to each mgf entry in io
         def reindex(&block)
           reindex_by_sep("BEGIN IONS", :entry_follows_sep => true, &block)
