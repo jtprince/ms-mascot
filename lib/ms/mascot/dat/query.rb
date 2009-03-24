@@ -1,6 +1,6 @@
 require 'ms/mascot/dat/section'
 require 'ms/mascot/mgf/entry'
-require 'cgi'
+require 'rack'
 
 module Ms::Mascot::Dat
   
@@ -87,7 +87,7 @@ module Ms::Mascot::Dat
   
     def initialize(data={}, section_name=self.class.section_name, dat=nil)
       super(data, section_name, dat)
-      data['title'] = CGI.unescape(data['title'])
+      data['title'] = Rack::Utils.unescape(data['title'].to_s)
       @index = section_name.strip[5..-1].to_i
       @ions=[]
     end
