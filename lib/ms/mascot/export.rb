@@ -1,10 +1,10 @@
-require 'tap/http/submit'
+require 'tap/mechanize/submit'
 require 'ms/mascot/validation'
 
 module Ms
   module Mascot
     # :startdoc::manifest exports results from a search
-    class Export < Tap::Http::Submit
+    class Export < Tap::Mechanize::Submit
       include Validation
       
       # The MatrixScience public search site

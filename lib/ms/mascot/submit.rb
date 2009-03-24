@@ -1,4 +1,4 @@
-require 'tap/http/submit'
+require 'tap/mechanize/request'
 require 'ms/mascot/validation'
 
 module Ms
@@ -29,7 +29,7 @@ module Ms
     # values MUST be overridden and are only provided as a template (for
     # those that want the adventure of manually making a config file).
     #
-    class Submit < Tap::Http::Submit
+    class Submit < Tap::Mechanize::Request
       include Validation
       
       # Matches a successful search response.  After the match:
@@ -86,13 +86,13 @@ module Ms
           params['FILE'] = io
         
           # submit request
-          super(
+          page = super(
             :request_method => 'POST',
             :uri => uri,
             :params => params
-          ) do |page|
-            parse_response_body(page.body)
-          end
+          )
+          
+          parse_response_body(page.body)
         end
       end
       

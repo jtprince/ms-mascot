@@ -1,13 +1,18 @@
 require File.join(File.dirname(__FILE__), '../../tap_spec_helper.rb') 
 require 'ms/mascot/submit'
-require 'tap/test/http_test'
+require 'tap/mechanize/test'
 
 class SubmitSpec < MiniTest::Spec
   acts_as_tap_test
   
   include Ms::Mascot
-  include Tap::Test::HttpTest
-
+  include Tap::Mechanize::Test
+  
+  before do
+    super
+    app.logger = nil
+  end
+  
   #
   # describe SUCCESS_REGEXP
   #
@@ -44,8 +49,8 @@ Please press the back button on your browser, correct the fault and retry the se
       [File.read(ctr['success.html'])]
     end
     
-    web_test(server) do
-      t = Submit.new(:uri => "localhost:2000")
+    mechanize_test(server) do
+      t = Submit.new(:uri => "http://localhost:2000")
       mgf_file = method_root.prepare(:tmp, 'mgf_file') {}
       t.process(mgf_file).must_equal "../data/20081202/F011846.dat"
     end
@@ -56,8 +61,8 @@ Please press the back button on your browser, correct the fault and retry the se
       [File.read(ctr['error_invalid_file.html'])]
     end
     
-    web_test(server) do
-      t = Submit.new(:uri => "localhost:2000")
+    mechanize_test(server) do
+      t = Submit.new(:uri => "http://localhost:2000")
       mgf_file = method_root.prepare(:tmp, 'mgf_file') {}
       t.process(mgf_file).must_equal nil
     end

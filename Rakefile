@@ -93,7 +93,7 @@ Rake::TestTask.new(:spec) do |t|
   unless ENV['gems']
     t.libs << 'submodule/ms-testdata/lib'
     t.libs << 'submodule/ms-in_silico/lib'
-    t.libs << 'submodule/tap-http/lib'
+    t.libs << 'submodule/tap-mechanize/lib'
   end
   t.verbose = true
   t.warning = true
