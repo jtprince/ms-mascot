@@ -60,7 +60,7 @@ module Ms
         config "PRECURSOR", "",  &c.string
         config "USERNAME", "Name",  &c.string
         config "TOLU", "ppm",  &c.string
-        config "USEREMAIL", "email@email.com", &c.string
+        config "USEREMAIL", '', &c.string
         config "CLE", "Trypsin", &c.string
         config "TOL", 100, &c.num
         config "ITOLU", "Da", &c.string

@@ -30,7 +30,7 @@ module Ms
         {
           :charge => charge,
           :parent_ion_mass => spec.parent_ion_mass(charge),
-          :title => "#{spec.sequence} (#{series.join(', ')})"
+          :title => "#{spec.sequence.gsub(/\s+/, "")} (#{series.join(', ')})"
         }
       end
       
