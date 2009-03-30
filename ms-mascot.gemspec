@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "ms-mascot"
-  s.version = "0.2.1"
+  s.version = "0.2.2"
   s.authors = ["Simon Chiang", "John Prince"]
   s.email = "simon.a.chiang@gmail.com"
   s.homepage = "http://mspire.rubyforge.org/projects/ms-mascot/"
@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.add_dependency("tap", ">= 0.12.4")
   s.add_dependency("tap-mechanize", ">= 0.5.0")
   s.add_dependency("external", ">= 0.3.0")
-  s.add_dependency("ms-in_silico", ">= 0.2.1")
+  s.add_dependency("ms-in_silico", ">= 0.2.3")
   s.rdoc_options.concat %W{--main README -S -N --title Ms-Mascot}
   
   # list extra rdoc files like README here.
