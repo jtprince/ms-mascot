@@ -8,20 +8,19 @@ module Ms
     # configurations specify various details of the dump, including the
     # precision and default headers.
     #
-    #   % rap fragment TVQQEL --:s format_mgf
+    #   % tap run -- fragment TVQQEL --:s format_mgf
     #
     # (note: be sure to use the splat option on the join)
     #
     class FormatMgf < Tap::Task
       
-      config :default_headers, {}, &c.hash        # a hash of default headers
-      config :min_length, 3, &c.integer_or_nil    # the minimum peptide length
-      config :mz_precision, 6, &c.integer         # the precision of mzs
-      config :intensity_precision, 0, &c.integer  # the precision of intensities
-      config :pepmass_precision, 6, &c.integer    # the precision of peptide mass
+      config :default_headers, {}, &c.hash        # A hash of default headers
+      config :mz_precision, 6, &c.integer         # The precision of mzs
+      config :intensity_precision, 0, &c.integer  # The precision of intensities
+      config :pepmass_precision, 6, &c.integer    # The precision of peptide mass
       
-      config :prefix, nil, &c.string_or_nil       # an optional prefix
-      config :suffix, "\n", &c.string_or_nil      # an optional suffix
+      config :prefix, nil, &c.string_or_nil       # An optional prefix
+      config :suffix, "\n", &c.string_or_nil      # An optional suffix
       
       # Maps header keys (typically output by a fragment task)
       # to Mgf::Entry header strings.

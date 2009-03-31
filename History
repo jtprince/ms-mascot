@@ -1,4 +1,4 @@
-== 0.2.2 / 2009-03-30
+== 0.2.2 / 2009-03-31
 
 * updates to use latest tap
 * ms-mascot now uses tap-mechanize instead of tap-http
