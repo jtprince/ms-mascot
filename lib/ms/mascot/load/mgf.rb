@@ -28,6 +28,25 @@ module Ms
           c.validate(input, [nil, Integer, Range, Array])
         end
         
+        nest :filter do
+          config :title, nil, &c.regexp_or_nil
+          config :charge, nil, &c.range_or_nil
+          config :pepmass, nil, &c.range_or_nil
+          config :n_ions, nil, &c.range_or_nil
+          
+          def ok?(entry)
+            (!title   || entry.title =~ title) &&
+            (!charge  || charge.include?(entry.charge)) &&
+            (!pepmass || pepmass.include?(entry.pepmass)) &&
+            (!n_ions  || n_ions.include?(entry.data.length))
+          end
+          
+          def filter!(entries)
+            return entries unless title || charge || pepmass || n_ions
+            entries.select {|entry| ok?(entry) }
+          end
+        end
+        
         def open_io(input)
           if input.kind_of?(String)
             Archive.open(input) {|io| yield(io) }
@@ -43,9 +62,15 @@ module Ms
         
         def load(arc)
           case select
-          when Array then arc[*select]
-          when nil then arc.to_a
-          else arc[select]
+          when Integer
+            entry = arc[select]
+            filter.ok?(entry) ? [entry] : []
+          when Range
+            filter.filter!(arc[select])
+          when Array 
+            filter.filter!(arc[*select])
+          when nil 
+            arc.select {|entry| filter.ok?(entry) }
           end
         end
       end
