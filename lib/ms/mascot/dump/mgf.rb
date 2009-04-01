@@ -4,22 +4,15 @@ require 'ms/mascot/mgf/entry'
 module Ms
   module Mascot
     module Dump
-      # :startdoc::manifest formats an fragment spectrum as mgf
+      # :startdoc::manifest dumps a fragment spectrum as mgf
       #
       # Formats the data produced by an Ms::Mascot::Fragment task as an mgf. The
       # configurations specify various details of the dump, including the
       # precision and default headers.
       #
-      #   % tap run -- fragment TVQQEL --:s format_mgf
-      #
-      # (note: be sure to use the splat option on the join)
+      #   % tap run -- fragment TVQQEL --: dump/mgf
       #
       # :startdoc::manifest-
-      #
-      # Example:
-      #
-      #   % rap load/yaml '[[[1, 2], [3, 4]], {pepmass: 1000, charge: 1}]' --: dump/mgf 
-      #
       class Mgf < Tap::Dump
       
         config :default_headers, {}, &c.hash        # A hash of default headers

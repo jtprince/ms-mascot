@@ -1,6 +1,7 @@
 ==
 
 * reworked format_mgf as a dump task (dump/mgf)
+* added a load/mgf task
 
 == 0.2.2 / 2009-03-31
 
