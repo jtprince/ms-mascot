@@ -13,6 +13,12 @@ module Ms
       #   % tap run -- fragment TVQQEL --: dump/mgf
       #
       # :startdoc::manifest-
+      #
+      # Examples:
+      # 
+      #   # reformat an mgf file (inefficient but works)
+      #   % rap load/mgf --file OLD_FILE --:i dump/mgf --mz-precision 2 > NEW_FILE
+      #
       class Mgf < Tap::Dump
       
         config :default_headers, {}, &c.hash        # A hash of default headers
@@ -29,12 +35,14 @@ module Ms
       
         # Dumps the object to io as YAML.
         def dump(obj, io)
-          data, headers = obj
-          mgf_headers = format_headers(headers)
+          unless obj.kind_of?(Ms::Mascot::Mgf::Entry)
+            data, headers = obj
+            mgf_headers = format_headers(headers)
+            obj = Ms::Mascot::Mgf::Entry.new(mgf_headers, data)
+          end
           
           io << prefix if prefix
-          Ms::Mascot::Mgf::Entry.new(mgf_headers, data).dump(io, config)
-        
+          obj.dump(io, config)
           io << suffix if suffix
         end
         
