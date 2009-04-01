@@ -1,3 +1,7 @@
+==
+
+* reworked format_mgf as a dump task (dump/mgf)
+
 == 0.2.2 / 2009-03-31
 
 * updates to use latest tap

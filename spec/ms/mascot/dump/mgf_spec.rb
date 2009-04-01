@@ -1,7 +1,7 @@
-require File.join(File.dirname(__FILE__), '../../tap_spec_helper.rb') 
-require 'ms/mascot/format_mgf'
+require File.join(File.dirname(__FILE__), '../../../tap_spec_helper.rb') 
+require 'ms/mascot/dump/mgf'
 
-class Ms::Mascot::FormatMgfSpec < MiniTest::Spec
+class Ms::Mascot::Dump::MgfSpec < MiniTest::Spec
   acts_as_tap_test 
   
   #
@@ -9,7 +9,8 @@ class Ms::Mascot::FormatMgfSpec < MiniTest::Spec
   #
   
   it "must dump the data and headers in mgf format" do
-    task = Ms::Mascot::FormatMgf.new
+    io = StringIO.new
+    task = Ms::Mascot::Dump::Mgf.new :target => io
     
     data = [
       102.054955,
@@ -42,6 +43,6 @@ PEPMASS=717.377747
 616.330068
 END IONS
 
-}, "\n" + task.process(data, headers)
+}, "\n" + task.process([data, headers]).string
   end
 end

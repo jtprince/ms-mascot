@@ -46,37 +46,38 @@ module Ms
       config :uri, "http://www.matrixscience.com/cgi/nph-mascot.exe?1"  # The uri of the mascot search site
       
       # Parameters for MS/MS searching of a human sample digested with trypsin
-      nest :params do                                                   # The query parameters
-        config "ErrTolRepeat", 0, &MASCOT_SWITCH
-        config "PFA", 1, &MASCOT_SWITCH
-        config "INSTRUMENT", "Default", &c.string
-        config "REPTYPE", "peptide",  &c.string
-        config "COM", "Search Title",  &c.string
-        config "FORMAT", "Mascot generic",  &c.string
-        config "PEAK", "AUTO",  &c.string
-        config "CHARGE", "+2"
-        config "INTERMEDIATE", "",  &c.string
-        config "SHOWALLMODS", "",  &c.string
-        config "PRECURSOR", "",  &c.string
+      nest :params do                                          # The query parameters
         config "USERNAME", "Name",  &c.string
-        config "TOLU", "ppm",  &c.string
         config "USEREMAIL", '', &c.string
+        config "COM", "Search Title",  &c.string
+        config "INSTRUMENT", "Default", &c.string
+        config "FORMAT", "Mascot generic",  &c.string
+        config "CHARGE", "+2"
+        config "TOLU", "ppm",  &c.string
         config "CLE", "Trypsin", &c.string
         config "TOL", 100, &c.num
         config "ITOLU", "Da", &c.string
-        config "QUANTITATION", "None", &c.string
-        config "SEARCH", "MIS", &c.string
+        config "PFA", 1, &MASCOT_SWITCH
         config "DB", "SwissProt", &c.string
-        config "PEP_ISOTOPE_ERROR", 0, &c.num
         config "ITOL", 0.6, &c.float
-        config "FORMVER", 1.01, &c.float
         config "IT_MODS", [
           "Acetyl (Protein N-term)",
           "Gln->pyro-Glu (N-term Q)",
-          "Oxidation (M)"], &c.list
+          "Oxidation (M)"
+        ], &c.list
         config "MASS", "Monoisotopic", &c.string
         config "REPORT", "AUTO", &c.string
         config "TAXONOMY", ". . . . . . . . . . . . . . . . Homo sapiens (human)", &c.string
+        config "INTERMEDIATE", "",  &c.string
+        config "PRECURSOR", "",  &c.string
+        config "QUANTITATION", "None", &c.string
+        config "PEP_ISOTOPE_ERROR", 0, &c.num
+        config "SEARCH", "MIS", :type => :hidden
+        config "PEAK", "AUTO", :type => :hidden
+        config "SHOWALLMODS", "", :type => :hidden
+        config "ErrTolRepeat", 0, :type => :hidden
+        config "REPTYPE", "peptide", :type => :hidden
+        config "FORMVER", 1.01, :type => :hidden
       end
       
       def process(mgf_file)

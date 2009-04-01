@@ -151,8 +151,6 @@ END IONS
 BEGIN IONS
 A=a
 C=
-CHARGE=
-PEPMASS=
 END IONS
 }
   end
@@ -167,8 +165,6 @@ END IONS
     dump = e.dump("", :mz_precision => 3, :intensity_precision => 2)
     ("\n" + dump).must_equal %Q{
 BEGIN IONS
-CHARGE=
-PEPMASS=
 0.123 0.12
 0.124 0.13
 0.124 0.13
@@ -183,7 +179,6 @@ END IONS
     dump = e.dump("", :pepmass_precision => 3)
     ("\n" + dump).must_equal %Q{
 BEGIN IONS
-CHARGE=
 PEPMASS=0.123
 END IONS
 }
@@ -192,7 +187,6 @@ END IONS
     dump = e.dump("", :pepmass_precision => 3)
     ("\n" + dump).must_equal %Q{
 BEGIN IONS
-CHARGE=
 PEPMASS=0.124
 END IONS
 }
@@ -201,7 +195,6 @@ END IONS
     dump = e.dump("", :pepmass_precision => 3)
     ("\n" + dump).must_equal %Q{
 BEGIN IONS
-CHARGE=
 PEPMASS=0.124
 END IONS
 }
@@ -229,8 +222,6 @@ END IONS
     
     ("\n" + target.str).must_equal %Q{
 BEGIN IONS
-CHARGE=
-PEPMASS=
 END IONS
 }
   end

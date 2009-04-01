@@ -136,9 +136,14 @@ module Ms
           (options[:headers] || headers.keys).each do |key|
             target << "#{key.upcase}=#{headers[key]}\n"
           end
-            
-          target << "CHARGE=#{charge_to_s}\n"
-          target << "PEPMASS=#{format options[:pepmass_precision]}\n" % pepmass
+          
+          if charge
+            target << "CHARGE=#{charge_to_s}\n"
+          end
+          
+          if pepmass
+            target << "PEPMASS=#{format options[:pepmass_precision]}\n" % pepmass
+          end
           
           entry = data[0]
           data_format = case
