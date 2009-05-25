@@ -23,7 +23,7 @@ module Ms
     # See Ms::Mascot::Spectrum for more details.
     class Fragment < InSilico::Fragment
       
-      config :intensity, 1, &c.num_or_nil  # a uniform intensity value
+      config :intensity, 1, &c.numeric_or_nil  # a uniform intensity value
       
       # Generates some MGF-specific headers.
       def headers(spec)

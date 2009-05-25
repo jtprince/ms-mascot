@@ -12,6 +12,8 @@ Gem::Specification.new do |s|
   s.add_dependency("tap-mechanize", ">= 0.6.0")
   s.add_dependency("external", ">= 0.3.0")
   s.add_dependency("ms-in_silico", ">= 0.3.0")
+  s.add_development_dependency("minitest", ">= 1.3.1")
+  s.add_development_dependency("tap-test", ">= 0.1.0")
   s.rdoc_options.concat %W{--main README -S -N --title Ms-Mascot}
   
   # list extra rdoc files like README here.
@@ -37,9 +39,11 @@ Gem::Specification.new do |s|
     lib/ms/mascot/dat/section.rb
     lib/ms/mascot/dat/summary.rb
     lib/ms/mascot/dat/summary/id.rb
+    lib/ms/mascot/dump/mgf.rb
     lib/ms/mascot/export.rb
-    lib/ms/mascot/format_mgf.rb
+    lib/ms/mascot/formats/xml.rb
     lib/ms/mascot/fragment.rb
+    lib/ms/mascot/load/mgf.rb
     lib/ms/mascot/mgf.rb
     lib/ms/mascot/mgf/archive.rb
     lib/ms/mascot/mgf/entry.rb
