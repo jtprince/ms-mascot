@@ -3,7 +3,7 @@ require 'ms/mascot/validation'
 
 module Ms
   module Mascot
-    # :startdoc::manifest exports results from a search
+    # :startdoc::task exports results from a search
     class Export < Tap::Mechanize::Submit
       include Validation
       
@@ -15,7 +15,7 @@ module Ms
         config "pep_expect", "1", &MASCOT_SWITCH
         config "prot_mass", "1", &MASCOT_SWITCH
         config "protein_master", "1", &MASCOT_SWITCH
-        config "_server_mudpit_switch", 0.000000001, &c.num
+        config "_server_mudpit_switch", 0.000000001, &c.numeric
         config "pep_exp_mz", "1", &MASCOT_SWITCH
         config "do_export", "1", &MASCOT_SWITCH
         config "pep_delta", "1", &MASCOT_SWITCH
@@ -37,7 +37,7 @@ module Ms
         config "_showallfromerrortolerant", ""
         config "prot_hit_num", "1", &MASCOT_SWITCH
         config "search_master", "1", &MASCOT_SWITCH
-        config "_sigthreshold", 0.05, &c.num
+        config "_sigthreshold", 0.05, &c.numeric
         config "show_params", "1", &MASCOT_SWITCH
         config "show_mods", "1", &MASCOT_SWITCH
         config "show_header", "1", &MASCOT_SWITCH

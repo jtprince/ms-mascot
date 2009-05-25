@@ -1,11 +1,11 @@
-require 'tap/load'
+require 'tap/tasks/load'
 require 'ms/mascot/mgf/archive'
 
 module Ms
   module Mascot
     module Load
       
-      # :startdoc::manifest loads entries from an mgf file
+      # :startdoc::task loads entries from an mgf file
       #
       # Load entries from an mgf file.  A selector may be specified to select
       # only a subset of entries; by default all entries in the mgf file are
@@ -17,7 +17,7 @@ module Ms
       # Entries are always returned as an array, even when the selecton is
       # for a single entry.
       #
-      class Mgf < Tap::Load
+      class Mgf < Tap::Tasks::Load
         Archive = Ms::Mascot::Mgf::Archive
         
         config :select, nil do |input|    # An array selector for entries

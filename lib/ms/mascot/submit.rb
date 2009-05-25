@@ -3,7 +3,7 @@ require 'ms/mascot/validation'
 
 module Ms
   module Mascot
-    # :startdoc::manifest submits a PMF or MS/MS search to Mascot
+    # :startdoc::task submits a PMF or MS/MS search to Mascot
     #
     # Submits a search request to Mascot using the mgf file and the search
     # parameters in a static config file.  Correctly formatting search
@@ -55,7 +55,7 @@ module Ms
         config "CHARGE", "+2"
         config "TOLU", "ppm",  &c.string
         config "CLE", "Trypsin", &c.string
-        config "TOL", 100, &c.num
+        config "TOL", 100, &c.numeric
         config "ITOLU", "Da", &c.string
         config "PFA", 1, &MASCOT_SWITCH
         config "DB", "SwissProt", &c.string
@@ -71,7 +71,7 @@ module Ms
         config "INTERMEDIATE", "",  &c.string
         config "PRECURSOR", "",  &c.string
         config "QUANTITATION", "None", &c.string
-        config "PEP_ISOTOPE_ERROR", 0, &c.num
+        config "PEP_ISOTOPE_ERROR", 0, &c.numeric
         config "SEARCH", "MIS", :type => :hidden
         config "PEAK", "AUTO", :type => :hidden
         config "SHOWALLMODS", "", :type => :hidden

@@ -10,7 +10,7 @@ class Ms::Mascot::Dump::MgfSpec < MiniTest::Spec
   
   it "must dump the data and headers in mgf format" do
     io = StringIO.new
-    task = Ms::Mascot::Dump::Mgf.new :target => io
+    task = Ms::Mascot::Dump::Mgf.new :output => io
     
     data = [
       102.054955,

@@ -4,7 +4,7 @@ require 'ms/mascot/spectrum'
 module Ms
   module Mascot
   
-    # :startdoc::manifest calculates a theoretical Mascot ms/ms spectrum
+    # :startdoc::task calculates a theoretical Mascot ms/ms spectrum
     #
     # Calculates the theoretical Mascot ms/ms spectrum for a peptide sequence.
     # A Mascot spectrum differs from the standard in-silico spectrum only in

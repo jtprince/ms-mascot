@@ -1,10 +1,10 @@
-require 'tap/dump'
+require 'tap/tasks/dump'
 require 'ms/mascot/mgf/entry'
 
 module Ms
   module Mascot
     module Dump
-      # :startdoc::manifest dumps a fragment spectrum as mgf
+      # :startdoc::task dumps a fragment spectrum as mgf
       #
       # Formats the data produced by an Ms::Mascot::Fragment task as an mgf. The
       # configurations specify various details of the dump, including the
@@ -12,14 +12,14 @@ module Ms
       #
       #   % tap run -- fragment TVQQEL --: dump/mgf
       #
-      # :startdoc::manifest-
+      # :startdoc::task-
       #
       # Examples:
       # 
       #   # reformat an mgf file (inefficient but works)
       #   % rap load/mgf --file OLD_FILE --:i dump/mgf --mz-precision 2 > NEW_FILE
       #
-      class Mgf < Tap::Dump
+      class Mgf < Tap::Tasks::Dump
       
         config :default_headers, {}, &c.hash        # A hash of default headers
         config :mz_precision, 6, &c.integer         # The precision of mzs

@@ -1,4 +1,6 @@
-==
+== 0.3.0 / 2009-05-25
+
+Updated to utilize Tap-0.17.0
 
 * reworked format_mgf as a dump task (dump/mgf)
 * added a load/mgf task
