@@ -36,7 +36,9 @@ class Ms::Mascot::Dat
       
       # Parses a new instance from str.  Special parsing is required to quickly
       # remove the quotes from protein keys.
-      def parse(str, section_name=self.class.section_name, archive=nil)
+      def parse(str, sec_name=nil, archive=nil)
+        sec_name ||= to_s.split('::').last.downcase
+        
         params = {}
         scanner = StringScanner.new(str)
         
@@ -49,7 +51,7 @@ class Ms::Mascot::Dat
           scanner.skip(/\n/)
         end
         
-        new(params, name, archive)
+        new(params, sec_name, archive)
       end
     end
     
