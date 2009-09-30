@@ -1,15 +1,10 @@
 require File.join(File.dirname(__FILE__), '../../../tap_spec_helper.rb') 
-require 'ms/mascot/dat/peptides'
+require 'ms/mascot/dat/proteins'
 
 class ProteinsSpec < MiniTest::Spec
-  include Ms::Mascot::Dat
   
   # From sample mascot data F981122.dat
-  SAMPLE_PROTEINS = %Q{
-
-Content-Type: application/x-Mascot; name="proteins"
-
-"ZN711_HUMAN"=87153.77,"Zinc finger protein 711 (Zinc finger protein 6) - Homo sapiens (Human)"
+  SAMPLE_PROTEINS = %Q{"ZN711_HUMAN"=87153.77,"Zinc finger protein 711 (Zinc finger protein 6) - Homo sapiens (Human)"
 "Y986_MYCTU"=27356.31,"Hypothetical ABC transporter ATP-binding protein Rv0986/MT1014 - Mycobacterium tuberculosis"
 "Y5G0_ENCCU"=33509.30,"Hypothetical protein ECU05_1600/ECU11_0130 - Encephalitozoon cuniculi"
 }
@@ -17,7 +12,7 @@ Content-Type: application/x-Mascot; name="proteins"
   attr_reader :proteins
   
   before do
-    @proteins = Proteins.parse SAMPLE_PROTEINS
+    @proteins = Ms::Mascot::Dat::Proteins.parse SAMPLE_PROTEINS
   end
   
   #
@@ -25,7 +20,7 @@ Content-Type: application/x-Mascot; name="proteins"
   #
   
   it "parses data while removing quotes from keys" do
-    proteins = Proteins.parse SAMPLE_PROTEINS
+    proteins = Ms::Mascot::Dat::Proteins.parse SAMPLE_PROTEINS
     proteins.data.keys.sort.must_equal ['Y5G0_ENCCU', 'Y986_MYCTU', 'ZN711_HUMAN']
   end
   

@@ -52,13 +52,10 @@ Reformatted Ions
 end
 
 class QuerySpec < MiniTest::Spec
-  include Ms::Mascot::Dat
+  include Ms::Mascot
   
   # An abbreviated query section from F981122.dat
-  SAMPLE_QUERY = %Q{
-Content-Type: application/x-Mascot; name="query60"
-
-charge=3+
+  SAMPLE_QUERY = %Q{charge=3+
 mass_min=50.175000
 mass_max=1998.960000
 int_min=0.0364
@@ -71,7 +68,7 @@ Ions1=129.098825:384.8,187.070000:461.5,289.150000:1019,402.239654:2017
   attr_reader :query
   
   before do
-    @query = Query.parse SAMPLE_QUERY
+    @query = Dat::Query.parse SAMPLE_QUERY
   end
   
   #

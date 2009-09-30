@@ -39,14 +39,10 @@ class PeptidesUtilsSpec < MiniTest::Spec
 end
 
 class PeptidesSpec < MiniTest::Spec
-  include Ms::Mascot::Dat
+  include Ms::Mascot
   
   # From sample mascot data F981122.dat
-  SAMPLE_PEPTIDES = %Q{
-
-Content-Type: application/x-Mascot; name="peptides"
-
-q1_p1=-1
+  SAMPLE_PEPTIDES = %Q{q1_p1=-1
 q2_p1=0,499.300598,-0.051862,2,LAVPT,10,0000000,3.87,0001002000000000000,0,0;"Y1319_MYCTU":0:531:535:1,"Y1353_MYCBO":0:531:535:1
 q2_p1_terms=R,-:R,-
 q2_p2=0,499.300598,-0.051862,2,LAVTP,10,0000000,3.87,0001002000000000000,0,0;"RLPA_RICCN":0:316:320:1
@@ -58,7 +54,7 @@ q2_p3_terms=R,-
   attr_reader :peptides
   
   before do
-    @peptides = Peptides.parse SAMPLE_PEPTIDES
+    @peptides = Dat::Peptides.parse SAMPLE_PEPTIDES
   end
   
   #

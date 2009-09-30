@@ -84,6 +84,9 @@ end
 desc 'Default: Run specs.'
 task :default => :spec
 
+# the tap-mechanize tests will need libopenssl-ruby library!
+# "ubuntu/debian: sudo apt-get install libopenssl-ruby"
+
 desc 'Run specs.'
 Rake::TestTask.new(:spec) do |t|
   # can specify SPEC=<file>_spec.rb or TEST=<file>_spec.rb

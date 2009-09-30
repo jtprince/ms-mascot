@@ -2,18 +2,14 @@ require File.join(File.dirname(__FILE__), '../../../tap_spec_helper.rb')
 require 'ms/mascot/dat/section'
 
 class SectionSpec < MiniTest::Spec
-  include Ms::Mascot::Dat
+  include Ms::Mascot
   
   #
   # describe Section#parse
   #
   
   # From sample mascot data F981122.dat
-  SAMPLE_SECTION = %Q{
-
-Content-Type: application/x-Mascot; name="parameters"
-
-LICENSE=Licensed to: Matrix Science Internal use only - Frill, (4 processors).
+  SAMPLE_SECTION = %Q{LICENSE=Licensed to: Matrix Science Internal use only - Frill, (4 processors).
 MP=
 NM=
 COM=Peptide Mass Fingerprint Example
@@ -21,7 +17,7 @@ IATOL=
 }
 
   it 'must parse and returns new instance' do
-    p = Section.parse(SAMPLE_SECTION)
+    p = Dat::Section.parse(SAMPLE_SECTION)
     p.data.must_equal({
       'LICENSE' => 'Licensed to: Matrix Science Internal use only - Frill, (4 processors).',
       'MP' => '',
@@ -32,11 +28,7 @@ IATOL=
   end
 
   # Put together from several dat files/sections all with the parameters format.
-  MISHMASH_SECTION = %Q{
-
-Content-Type: application/x-Mascot; name="parameters"
-
-LICENSE=Licensed to: Matrix Science Internal use only - Frill, (4 processors).
+  MISHMASH_SECTION = %Q{LICENSE=Licensed to: Matrix Science Internal use only - Frill, (4 processors).
 IATOL=
 A=71.037114
 B=114.534940
@@ -54,7 +46,7 @@ q1_p1_terms=K,I:K,I:K,I
 }
 
   it 'must correctly parse a variety of parameters' do
-    p = Section.parse(MISHMASH_SECTION)
+    p = Dat::Section.parse(MISHMASH_SECTION)
     p.data.must_equal({
       "LICENSE" => "Licensed to: Matrix Science Internal use only - Frill, (4 processors).",
       "IATOL" => "",
@@ -78,11 +70,11 @@ q1_p1_terms=K,I:K,I:K,I
   # describe Section#name
   #
   
-  class Subclass < Section
+  class Subclass < Dat::Section
   end
   
   it 'must give the downcased, unnested constant name' do
-    Section.section_name.must_equal "section"
+    Dat::Section.section_name.must_equal "section"
     Subclass.section_name.must_equal "subclass"
   end
   
@@ -100,7 +92,7 @@ q1_p1_terms=K,I:K,I:K,I
   #
 
   it 'must format parameters with content type header' do
-    p = Section.new('key' => 'value')
+    p = Dat::Section.new('key' => 'value')
     p.to_s.must_equal %Q{
 
 Content-Type: application/x-Mascot; name="section"

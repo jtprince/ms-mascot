@@ -2,7 +2,7 @@ require 'ms/mascot/dat/summary'
 
 module Ms
   module Mascot
-    module Dat
+    class Dat
       class Summary
         class Id < Ms::Mascot::Dat::Summary
           class Peptide

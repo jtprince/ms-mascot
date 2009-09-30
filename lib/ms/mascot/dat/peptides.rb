@@ -1,6 +1,6 @@
 require 'ms/mascot/dat/section'
 
-module Ms::Mascot::Dat
+class Ms::Mascot::Dat
   
   # Peptides represent peptide identification information in a dat file.
   #

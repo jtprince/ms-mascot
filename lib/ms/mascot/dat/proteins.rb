@@ -1,6 +1,6 @@
 require 'ms/mascot/dat/section'
 
-module Ms::Mascot::Dat
+class Ms::Mascot::Dat
   
   # Proteins represent supplementary protein information in a dat file.
   #
@@ -36,15 +36,9 @@ module Ms::Mascot::Dat
       
       # Parses a new instance from str.  Special parsing is required to quickly
       # remove the quotes from protein keys.
-      def parse(str, archive=nil)
+      def parse(str, section_name=self.class.section_name, archive=nil)
         params = {}
         scanner = StringScanner.new(str)
-        
-        # skip whitespace and content type declaration
-        unless scanner.scan(Section::CONTENT_TYPE_REGEXP)
-          raise "unknown content type: #{content_type}"
-        end
-        section_name = scanner[1]
         
         # scan each pair removing quotes from keys
         while true
@@ -55,7 +49,7 @@ module Ms::Mascot::Dat
           scanner.skip(/\n/)
         end
         
-        new(params, section_name, archive)
+        new(params, name, archive)
       end
     end
     

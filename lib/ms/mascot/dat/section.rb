@@ -2,12 +2,10 @@ require 'strscan'
 
 module Ms
   module Mascot
-    module Dat
+    class Dat
       
       # Represents a 'section' section of a dat file, formatted like this:
       #
-      #   Content-Type: application/x-Mascot; name="parameters"
-      #   
       #   LICENSE=Licensed to: Matrix Science Internal use only - Frill, (4 processors).
       #   MP=
       #   NM=
@@ -18,27 +16,22 @@ module Ms
       # Example from mascot data F981122.dat
       class Section
         
-        # Matches a content-type declaration plus any preceding/following
-        # whitespace.  The section name is matched in slot 0.
-        CONTENT_TYPE_REGEXP = /\s*Content-Type: application\/x-Mascot; name=\"(.*?)\"\n\s*/
-        
         # A format string used to format parameters as a string.
         TO_S_FORMAT = "%s=%s\n"
+
+        def section_name
+          @section_name ||= self.to_s.split('::').last.downcase
+        end
               
         class << self
-          
+
           # Parses a new instance from str.  Section after then content-type
           # declaration are parsed into the parameters hash.  Section follow
           # a simple "key=value\n" pattern.
-          def parse(str, archive=nil)
+          def parse(str, sec_name=nil, dat=nil)
+            @section_name = sec_name ? sec_name : section_name
             params = {}
             scanner = StringScanner.new(str)
-            
-            # skip whitespace and content type declaration
-            unless scanner.scan(CONTENT_TYPE_REGEXP)
-              raise "unknown content type: #{content_type}"
-            end
-            section_name = scanner[1]
             
             # scan each pair.
             while key = scanner.scan(/[^=]+/)
@@ -47,18 +40,9 @@ module Ms
               scanner.skip(/\n/)
             end
             
-            new(params, section_name, archive)
+            new(params, @section_name, dat)
           end
           
-          # Returns the name of the section represented by this class.  Section
-          # names are by default the downcase, unnested class name, for
-          # example:
-          #
-          #   Ms::Mascot::Dat::Section.section_name  # => "parameters"
-          #
-          def section_name
-            @section_name ||= to_s.split('::').last.downcase
-          end
         end
         
         # A hash of data in self.
@@ -67,22 +51,21 @@ module Ms
         # The class section_name.
         attr_reader :section_name
         
-        # A backreference to the dat containing self.
-        attr_reader :dat
-        
-        def initialize(data={}, section_name=self.class.section_name, dat=nil)
+        def initialize(data={}, name=self.class.section_name, dat=nil)
+          @section_name = name 
           @data = data
-          @section_name = section_name
           @dat = dat
         end
-        
+
         # Formats self as a string with the content-type header.
-        def to_s
-          %Q{
-
-Content-Type: application/x-Mascot; name="#{section_name}"
-
-#{data.to_a.collect {|entry| self.class::TO_S_FORMAT % entry}.join}}
+        # use :header => false to prevent this
+        def to_s(opts={})
+          string = ""
+          opts = {:header => true}.merge(opts)
+          if opts[:header]
+            string << "\n\nContent-Type: application/x-Mascot; name=\"#{section_name}\"\n\n"
+          end
+          string << (data.to_a.collect {|entry| self.class::TO_S_FORMAT % entry}.join)
         end
       end
     end

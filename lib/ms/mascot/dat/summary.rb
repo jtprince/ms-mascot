@@ -1,6 +1,6 @@
 require 'ms/mascot/dat/section'
 
-module Ms::Mascot::Dat
+class Ms::Mascot::Dat
   
   # Summary represent summary identification information in a dat file.
   # Summaries differ in their meaning depending on the type of search but the

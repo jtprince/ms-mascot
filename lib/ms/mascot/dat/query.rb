@@ -1,8 +1,8 @@
 require 'ms/mascot/dat/section'
 require 'ms/mascot/mgf/entry'
-require 'rack'
+require 'cgi'
 
-module Ms::Mascot::Dat
+class Ms::Mascot::Dat
   
   # Query is a generic section for all queryN sections.  Query contains query
   # data that has different meaning depending on the type of search performed.
@@ -83,12 +83,12 @@ module Ms::Mascot::Dat
     include Utils
     
     # Returns the query index for self (ie 60 when section_name is 'query60')
-    attr_reader :index
+    attr_accessor :index
   
-    def initialize(data={}, section_name=self.class.section_name, dat=nil)
-      super(data, section_name, dat)
-      data['title'] = Rack::Utils.unescape(data['title'].to_s)
-      @index = section_name.strip[5..-1].to_i
+    def initialize(data={}, index=nil, dat=nil)
+      super(data, "query#{index}", dat)
+      data['title'] = CGI.unescape(data['title'].to_s)
+      @index = index
       @ions=[]
     end
   
