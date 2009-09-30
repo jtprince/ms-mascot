@@ -44,13 +44,10 @@ class SummaryUtilsSpec < MiniTest::Spec
 end
 
 class SummarySpec < MiniTest::Spec
-  include Ms::Mascot::Dat
+  include Ms::Mascot
 
   # From sample mascot data F981122.dat, slightly modified
   SAMPLE_SUMMARY = %Q{
-
-Content-Type: application/x-Mascot; name="summary"
-
 qmass1=497.265612
 qexp1=498.272888,1+
 qmatch1=5360
@@ -78,7 +75,7 @@ h2_q3=-1
   attr_reader :summary
 
   before do
-    @summary = Summary.parse SAMPLE_SUMMARY
+    @summary = Dat::Summary.parse SAMPLE_SUMMARY
   end
   
   #

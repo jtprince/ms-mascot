@@ -19,11 +19,12 @@ module Ms
         # A format string used to format parameters as a string.
         TO_S_FORMAT = "%s=%s\n"
 
-        def section_name
-          @section_name ||= self.to_s.split('::').last.downcase
-        end
               
         class << self
+
+          def section_name
+            @section_name ||= self.to_s.split('::').last.downcase
+          end
 
           # Parses a new instance from str.  Section after then content-type
           # declaration are parsed into the parameters hash.  Section follow
