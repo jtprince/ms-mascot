@@ -106,6 +106,23 @@ class Ms::Mascot::Dat
       data['title']
     end
 
+    # returns the charge as the original string found in the dat file (e.g.
+    # "3+" or "2-")
+    def charge_str
+      data['charge']
+    end
+
+    # returns the charge as in Integer
+    def charge
+      st = data['charge']
+      # put the last char on the front and cast it
+      (st[-1,1] + st[0...-1]).to_i
+    end
+
+    def inspect
+      "<#{self.class} title=#{title.inspect} charge=#{charge.inspect} data=#{data}>"
+    end
+
     # allows access to values in data with method calls
     #def method_missing(*args)
     #  if args.size == 1 && (val = data[arg.to_s])
