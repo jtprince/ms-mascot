@@ -1,4 +1,5 @@
 require 'ms/mascot/dat/query'
+require 'enumerator'
 
 module Ms
   module Mascot

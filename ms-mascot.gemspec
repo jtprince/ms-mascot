@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "ms-mascot"
-  s.version = "0.3.0"
+  s.version = "0.3.1"
   s.authors = ["Simon Chiang", "John Prince"]
   s.email = "simon.a.chiang@gmail.com"
   s.homepage = "http://mspire.rubyforge.org/projects/ms-mascot/"
@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
   # check this manifest using 'rake :print_manifest'
   s.files = %W{
     lib/ms/mascot.rb
+    lib/ms/mascot/version.rb
     lib/ms/mascot/dat.rb
     lib/ms/mascot/dat/archive.rb
     lib/ms/mascot/dat/header.rb
