@@ -1,5 +1,4 @@
 require 'ms/mascot/dat/query'
-require 'enumerator'
 
 module Ms
   module Mascot
@@ -125,7 +124,9 @@ module Ms
           # add a placeholder in order to process the last one
           ar << ['--placeholder--', 2, io.pos]
           query_ar = []
-          ar.enum_cons(2) do |a,b|
+          ar.each_with_index do |lil_ar, i|
+            next if ar[i+1].nil?
+            (a,b) = lil_ar, ar[i+1]
             key = a.first
             section_names << key
             value = [a.last+1, (b.last - a.last) - (bound_size + b[1])]
