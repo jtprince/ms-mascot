@@ -108,39 +108,53 @@ module Ms
         #       index['query'][75]   # -> [8542,93] # start & length for query 75
         # REWINDS the io
         def parse_index(io)  # :nodoc:
-          ar = []
-          section_names = []
-          # get the boundary size and advance io to start
-          io.gets
-          bound_size = io.gets.match(/boundary=(.*)/)[1].size + 4
+          # load the index if we already wrote it to file
+          base = io.path.chomp(File.extname(io.path))
+          index_file = base + ".index.yml"
+          if File.exist?(index_file)
+            puts "loading index: #{index_file}" if $VERBOSE
+            YAML.load_file(index_file)
+          else
+            ar = []
+            section_names = []
+            # get the boundary size and advance io to start
+            io.gets
+            bound_size = io.gets.match(/boundary=(.*)/)[1].size + 4
 
-          ar = []
-          io.each("\n") do |line|
-            if md = MascotSection_re.match(line) 
-              ar << [md[1], line.size, io.pos]
+            ar = []
+            io.each("\n") do |line|
+              if md = MascotSection_re.match(line) 
+                ar << [md[1], line.size, io.pos]
+              end
             end
-          end
-          hash = {}
-          # add a placeholder in order to process the last one
-          ar << ['--placeholder--', 2, io.pos]
-          query_ar = []
-          ar.each_with_index do |lil_ar, i|
-            next if ar[i+1].nil?
-            (a,b) = lil_ar, ar[i+1]
-            key = a.first
-            section_names << key
-            value = [a.last+1, (b.last - a.last) - (bound_size + b[1])]
-            if md = QueryMatch_re.match(key)
-              query_ar[md[1].to_i] = value
-            else
-              hash[key] = value
+            hash = {}
+            # add a placeholder in order to process the last one
+            ar << ['--placeholder--', 2, io.pos]
+            query_ar = []
+            ar.each_with_index do |lil_ar, i|
+              next if ar[i+1].nil?
+              (a,b) = lil_ar, ar[i+1]
+              key = a.first
+              section_names << key
+              value = [a.last+1, (b.last - a.last) - (bound_size + b[1])]
+              if md = QueryMatch_re.match(key)
+                query_ar[md[1].to_i] = value
+              else
+                hash[key] = value
+              end
             end
+            hash['query'] = query_ar if query_ar.size > 0
+            io.rewind
+            begin
+              File.open(index_file, 'w') do |index_io|
+                index_io.print( [section_names, hash].to_yaml )
+              end
+            rescue
+              warn "not able to open #{index_file} to write index for faster reading next time" if $VERBOSE
+            end
+            [section_names, hash]
           end
-          hash['query'] = query_ar if query_ar.size > 0
-          io.rewind
-          [section_names, hash]
         end
-
       end # class methods
 
       # the io object given to the new method
