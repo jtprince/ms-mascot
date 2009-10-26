@@ -112,7 +112,7 @@ class Ms::Mascot::Dat
       data['charge']
     end
 
-    # returns the charge as in Integer
+    # returns the charge as an Integer
     def charge
       st = data['charge']
       # put the last char on the front and cast it
